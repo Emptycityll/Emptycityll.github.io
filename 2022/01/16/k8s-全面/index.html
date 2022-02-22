@@ -1,0 +1,844 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head>
+  <meta charset="utf-8">
+  
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, minimal-ui">
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="Cache-Control" content="no-transform" />
+  <meta http-equiv="Cache-Control" content="no-siteapp" />
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="format-detection" content="telephone=no,email=no,adress=no">
+  <!-- Color theme for statusbar -->
+  <meta name="theme-color" content="#000000" />
+  <!-- 强制页面在当前窗口以独立页面显示,防止别人在框架里调用页面 -->
+  <meta http-equiv="window-target" content="_top" />
+  
+  
+  <title>k8s-全面 | Hexo</title>
+  <meta name="description" content="Kubernetes1 kubernetes-整体概述和架构详解1.1  概述Kubernetes是一个轻便的和可扩展的开源平台，用于管理容器化应用和服务。通过Kubernetes能够进行应用的自动化部署和扩缩容。在Kubernetes中，会将组成应用的容器组合成一个逻辑单元以更易管理和发现。Kubernetes积累了作为Google生产环境运行工作负载15年的经验，并吸收了来自于社区的最佳想法和">
+<meta property="og:type" content="article">
+<meta property="og:title" content="k8s-全面">
+<meta property="og:url" content="http://example.com/2022/01/16/k8s-%E5%85%A8%E9%9D%A2/index.html">
+<meta property="og:site_name" content="����ɭ">
+<meta property="og:description" content="Kubernetes1 kubernetes-整体概述和架构详解1.1  概述Kubernetes是一个轻便的和可扩展的开源平台，用于管理容器化应用和服务。通过Kubernetes能够进行应用的自动化部署和扩缩容。在Kubernetes中，会将组成应用的容器组合成一个逻辑单元以更易管理和发现。Kubernetes积累了作为Google生产环境运行工作负载15年的经验，并吸收了来自于社区的最佳想法和">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://yshtypora-img.oss-cn-wulanchabu.aliyuncs.com/img/1404880-20190917225726741-1425234707.png">
+<meta property="og:image" content="https://yshtypora-img.oss-cn-wulanchabu.aliyuncs.com/img/1404880-20190917231417304-1871746688.png">
+<meta property="og:image" content="https://yshtypora-img.oss-cn-wulanchabu.aliyuncs.com/img/1082769-20180401111010026-512269849.png">
+<meta property="article:published_time" content="2022-01-16T12:33:41.000Z">
+<meta property="article:modified_time" content="2022-02-22T10:16:57.762Z">
+<meta property="article:author" content="yun">
+<meta property="article:tag" content="�޽�">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://yshtypora-img.oss-cn-wulanchabu.aliyuncs.com/img/1404880-20190917225726741-1425234707.png">
+  <!-- Canonical links -->
+  <link rel="canonical" href="http://example.com/2022/01/16/k8s-%E5%85%A8%E9%9D%A2/index.html">
+  
+    <link rel="alternate" href="/atom.xml" title="����ɭ" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png" type="image/x-icon">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+  
+  
+  
+<meta name="generator" content="Hexo 6.0.0"></head>
+
+
+<body class="main-center" itemscope itemtype="http://schema.org/WebPage">
+  <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+  <div class="slimContent">
+    <div class="navbar-header">
+      
+      
+      <div class="profile-block text-center">
+        <a id="avatar" href="https://github.com/cofess" target="_blank">
+          <img class="img-circle img-rotate" src="/images/avatar.jpg" width="200" height="200">
+        </a>
+        <h2 id="name" class="hidden-xs hidden-sm">云先森</h2>
+        <h3 id="title" class="hidden-xs hidden-sm hidden-md">一个酷酷的学生</h3>
+        <small id="location" class="text-muted hidden-xs hidden-sm"><i class="icon icon-map-marker"></i> Huhehaote, China</small>
+      </div>
+      
+      <div class="search" id="search-form-wrap">
+
+    <form class="search-form sidebar-form">
+        <div class="input-group">
+            <input type="text" class="search-form-input form-control" placeholder="搜索" />
+            <span class="input-group-btn">
+                <button type="submit" class="search-form-submit btn btn-flat" onclick="return false;"><i class="icon icon-search"></i></button>
+            </span>
+        </div>
+    </form>
+    <div class="ins-search">
+  <div class="ins-search-mask"></div>
+  <div class="ins-search-container">
+    <div class="ins-input-wrapper">
+      <input type="text" class="ins-search-input" placeholder="想要查找什么..." x-webkit-speech />
+      <button type="button" class="close ins-close ins-selectable" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+    </div>
+    <div class="ins-section-wrapper">
+      <div class="ins-section-container"></div>
+    </div>
+  </div>
+</div>
+
+
+</div>
+      <button class="navbar-toggle collapsed" type="button" data-toggle="collapse" data-target="#main-navbar" aria-controls="main-navbar" aria-expanded="false">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+    </div>
+    <nav id="main-navbar" class="collapse navbar-collapse" itemscope itemtype="http://schema.org/SiteNavigationElement" role="navigation">
+      <ul class="nav navbar-nav main-nav ">
+        
+        
+        <li class="menu-item menu-item-home">
+          <a href="/.">
+            
+            <i class="icon fa-dashboard"></i>
+            
+            <span class="menu-title">首页</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives">
+            
+            <i class="icon fa-delicious"></i>
+            
+            <span class="menu-title">归档</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories">
+            
+            <i class="icon fa-folder"></i>
+            
+            <span class="menu-title">分类</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags">
+            
+            <i class="icon fa-tags"></i>
+            
+            <span class="menu-title">标签</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-repository">
+          <a href="/repository">
+            
+            <i class="icon fa-code"></i>
+            
+            <span class="menu-title">项目</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-books">
+          <a href="/books">
+            
+            <i class="icon fa-leanpub"></i>
+            
+            <span class="menu-title">书单</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-links">
+          <a href="/links">
+            
+            <i class="icon fa-gg"></i>
+            
+            <span class="menu-title">友链</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about">
+            
+            <i class="icon fa-coffee"></i>
+            
+            <span class="menu-title">关于</span>
+          </a>
+        </li>
+        
+      </ul>
+      
+	
+    <ul class="social-links">
+    	
+        <li><a href="https://github.com/cofess" target="_blank" title="Github" data-toggle=tooltip data-placement=top><i class="icon icon-github"></i></a></li>
+        
+        <li><a href="http://weibo.com/cofess" target="_blank" title="Weibo" data-toggle=tooltip data-placement=top><i class="icon icon-weibo"></i></a></li>
+        
+        <li><a href="https://twitter.com/iwebued" target="_blank" title="Twitter" data-toggle=tooltip data-placement=top><i class="icon icon-twitter"></i></a></li>
+        
+        <li><a href="https://www.behance.net/cofess" target="_blank" title="Behance" data-toggle=tooltip data-placement=top><i class="icon icon-behance"></i></a></li>
+        
+        <li><a href="/atom.xml" target="_blank" title="Rss" data-toggle=tooltip data-placement=top><i class="icon icon-rss"></i></a></li>
+        
+    </ul>
+
+    </nav>
+  </div>
+</header>
+
+  
+    <aside class="sidebar" itemscope itemtype="http://schema.org/WPSideBar">
+  <div class="slimContent">
+    
+      <div class="widget">
+    <h3 class="widget-title">公告</h3>
+    <div class="widget-body">
+        <div id="board">
+            <div class="content">
+                <p>欢迎交流与分享经验!</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+    
+      
+
+    
+      
+
+    
+      
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">归档</h3>
+    <div class="widget-body">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/01/">一月 2022</a><span class="archive-list-count">9</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">最新文章</h3>
+    <div class="widget-body">
+      <ul class="recent-post-list list-unstyled no-thumbnail">
+        
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                
+              </p>
+              <p class="item-title">
+                <a href="/2022/01/21/Keepalived-%E5%8F%8C%E6%9C%BA%E8%A2%AB%E7%83%AD/" class="title">Keepalived-双机被热</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2022-01-21T12:38:38.000Z" itemprop="datePublished">2022-01-21</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                
+              </p>
+              <p class="item-title">
+                <a href="/2022/01/20/mariadb-galera-cluster/" class="title">mariadb-galera-cluster</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2022-01-20T14:09:27.000Z" itemprop="datePublished">2022-01-20</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                
+              </p>
+              <p class="item-title">
+                <a href="/2022/01/19/YAML%E8%AF%AD%E6%B3%95%E5%AD%A6%E4%B9%A0/" class="title">YAML语法学习</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2022-01-19T02:00:58.000Z" itemprop="datePublished">2022-01-19</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                
+              </p>
+              <p class="item-title">
+                <a href="/2022/01/18/gluster-%E5%AD%98%E5%82%A8%E9%9B%86%E7%BE%A4/" class="title">gluster-存储集群</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2022-01-18T12:53:29.000Z" itemprop="datePublished">2022-01-18</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                
+              </p>
+              <p class="item-title">
+                <a href="/2022/01/17/ceph-%E9%83%A8%E7%BD%B2%E6%89%8B%E5%86%8C/" class="title">ceph-部署</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2022-01-17T02:42:50.000Z" itemprop="datePublished">2022-01-17</time>
+              </p>
+            </div>
+          </li>
+          
+      </ul>
+    </div>
+  </div>
+  
+
+    
+  </div>
+</aside>
+
+  
+  
+<main class="main" role="main">
+  <div class="content">
+  <article id="post-k8s-全面" class="article article-type-post" itemscope itemtype="http://schema.org/BlogPosting">
+    
+    <div class="article-header">
+      
+        
+  
+    <h1 class="article-title" itemprop="name">
+      k8s-全面
+    </h1>
+  
+
+      
+      <div class="article-meta">
+        <span class="article-date">
+    <i class="icon icon-calendar-check"></i>
+	<a href="/2022/01/16/k8s-%E5%85%A8%E9%9D%A2/" class="article-date">
+	  <time datetime="2022-01-16T12:33:41.000Z" itemprop="datePublished">2022-01-16</time>
+	</a>
+</span>
+        
+        
+
+        
+
+        <span class="post-comment"><i class="icon icon-comment"></i> <a href="/2022/01/16/k8s-%E5%85%A8%E9%9D%A2/#comments" class="article-comment-link">评论</a></span>
+        
+      </div>
+    </div>
+    <div class="article-entry marked-body" itemprop="articleBody">
+      
+        <h2 id="Kubernetes"><a href="#Kubernetes" class="headerlink" title="Kubernetes"></a>Kubernetes</h2><h3 id="1-kubernetes-整体概述和架构详解"><a href="#1-kubernetes-整体概述和架构详解" class="headerlink" title="1 kubernetes-整体概述和架构详解"></a>1 kubernetes-整体概述和架构详解</h3><h4 id="1-1-概述"><a href="#1-1-概述" class="headerlink" title="1.1  概述"></a>1.1  概述</h4><p>Kubernetes是一个轻便的和可扩展的开源平台，用于管理容器化应用和服务。通过Kubernetes能够进行应用的自动化部署和扩缩容。在Kubernetes中，会将组成应用的容器组合成一个逻辑单元以更易管理和发现。Kubernetes积累了作为Google生产环境运行工作负载15年的经验，并吸收了来自于社区的最佳想法和实践。Kubernetes经过这几年的快速发展，形成了一个大的生态环境，Google在2014年将Kubernetes作为开源项目。</p>
+<span id="more"></span>
+
+<p>Kubernetes的关键特性包括：</p>
+<blockquote>
+<p><strong>自动化装箱</strong><br>在不牺牲可用性的条件下，基于容器对资源的要求和约束自动部署容器。同时，为了提高利用率和节省更多资源，将关键和最佳工作量结合在一起。</p>
+<p><strong>自愈能力</strong><br>当容器失败时，会对容器进行重启；当所部署的Node节点有问题时，会对容器进行重新部署和重新调度；当容器未通过监控检查时，会关闭此容器；直到容器正常运行时，才会对外提供服务。</p>
+<p><strong>水平扩容</strong><br>通过简单的命令、用户界面或基于CPU的使用情况，能够对应用进行扩容和缩容。</p>
+<p><strong>服务发现和负载均衡：</strong><br>开发者不需要使用额外的服务发现机制，就能够基于Kubernetes进行服务发现和负载均衡。</p>
+<p><strong>自动发布和回滚</strong><br>Kubernetes能够程序化的发布应用和相关的配置。如果发布有问题，Kubernetes将能够回归发生的变更。</p>
+<p><strong>保密和配置管理</strong><br>在不需要重新构建镜像的情况下，可以部署和更新保密和应用配置。</p>
+<p><strong>存储编排</strong><br>自动挂接存储系统，这些存储系统可以来自于本地、公共云提供商（例如：GCP和AWS）、网络存储(例如：NFS、iSCSI、Gluster、Ceph、Cinder和Floker等)。</p>
+</blockquote>
+<h4 id="1-2-Kubernetes的整体架构"><a href="#1-2-Kubernetes的整体架构" class="headerlink" title="1.2 Kubernetes的整体架构"></a>1.2 Kubernetes的整体架构</h4><img src="https://yshtypora-img.oss-cn-wulanchabu.aliyuncs.com/img/1404880-20190917225726741-1425234707.png" alt="img" style="zoom:50%;" />
+
+
+
+<p>Kubernetes属于主从分布式架构，主要由Master Node和Worker Node组成，以及包括客户端命令行工具kubectl和其它附加项。</p>
+<blockquote>
+<p><strong>Master Node</strong><br>作为控制节点，对集群进行调度管理；Master Node由API Server、Scheduler、Cluster State Store（etcd）和Controller Manger Server所组成；</p>
+<p><strong>Worker Node</strong><br>作为真正的工作节点，运行业务应用的容器；Worker Node包含kubelet、kube proxy和Container Runtime；</p>
+<p><strong>kubectl</strong><br>用于通过命令行与API Server进行交互，而对Kubernetes进行操作，实现在集群中进行各种资源的增删改查等操作；</p>
+<p><strong>Add-on</strong><br>是对Kubernetes核心功能的扩展，例如增加网络和网络策略等能力。</p>
+</blockquote>
+<h5 id="1-2-1-Master-Node（主节点）"><a href="#1-2-1-Master-Node（主节点）" class="headerlink" title="1.2.1 Master Node（主节点）"></a>1.2.1 Master Node（主节点）</h5><p>1、API Server（API服务器）</p>
+<p>API Server主要用来处理REST的操作，确保它们生效，并执行相关业务逻辑，以及更新etcd（或者其他存储）中的相关对象。API Server是所有REST命令的入口，它的相关结果状态将被保存在etcd（或其他存储）中。API Server的基本功能包括：</p>
+<blockquote>
+<p>REST语义，监控，持久化和一致性保证，API 版本控制，放弃和生效</p>
+<p>内置准入控制语义，同步准入控制钩子，以及异步资源初始化</p>
+<p>API注册和发现</p>
+<p>API Server也作为集群的网关<br>默认情况，客户端通过API Server对集群进行访问，客户端需要通过认证，并使用API Server作为访问Node和Pod（以及service）的堡垒和代理/通道。</p>
+</blockquote>
+<p>2、Cluster state store（集群状态存储）</p>
+<p>Kubernetes默认使用etcd作为集群整体存储，当然也可以使用其它的技术。etcd是一个简单的、分布式的、一致的key-value存储，主要被用来共享配置和服务发现。etcd提供了一个CRUD操作的REST API，以及提供了作为注册的接口，以监控指定的Node。集群的所有状态都存储在etcd实例中，并具有监控的能力，因此当etcd中的信息发生变化时，就能够快速的通知集群中相关的组件。</p>
+<p>3、Controller-Manager Server（控制管理服务器）</p>
+<p>Controller-Manager Serve用于执行大部分的集群层次的功能，它既执行生命周期功能(例如：命名空间创建和生命周期、事件垃圾收集、已终止垃圾收集、级联删除垃圾收集、node垃圾收集)，也执行API业务逻辑（例如：pod的弹性扩容）。控制管理提供自愈能力、扩容、应用生命周期管理、服务发现、路由、服务绑定和提供。Kubernetes默认提供Replication Controller、Node Controller、Namespace Controller、Service Controller、Endpoints Controller、Persistent Controller、DaemonSet Controller等控制器。</p>
+<p>4、Scheduler（调度器）</p>
+<p>scheduler组件为容器自动选择运行的主机。依据请求资源的可用性，服务请求的质量等约束条件，scheduler监控未绑定的pod，并将其绑定至特定的node节点。Kubernetes也支持用户自己提供的调度器，Scheduler负责根据调度策略自动将Pod部署到合适Node中，调度策略分为预选策略和优选策略，Pod的整个调度过程分为两步：</p>
+<blockquote>
+<p><strong>预选Node</strong><br>遍历集群中所有的Node，按照具体的预选策略筛选出符合要求的Node列表。如没有Node符合预选策略规则，该Pod就会被挂起，直到集群中出现符合要求的Node。</p>
+<p><strong>优选Node</strong><br>预选Node列表的基础上，按照优选策略为待选的Node进行打分和排序，从中获取最优Node。</p>
+</blockquote>
+<h5 id="1-2-2-Worker-Node（从节点）"><a href="#1-2-2-Worker-Node（从节点）" class="headerlink" title="1.2.2 Worker Node（从节点）"></a>1.2.2 Worker Node（从节点）</h5><p>1、Kubelet</p>
+<p>Kubelet是Kubernetes中最主要的控制器，维护容器的生命周期，并管理CSI（Container Storage Interface）和CNI（Conteinre Network Interface）。它是Pod和Node API的主要实现者，Kubelet负责驱动容器执行层。在Kubernetes中，应用容器彼此是隔离的，并且与运行其的主机也是隔离的，这是对应用进行独立解耦管理的关键点。</p>
+<p>在Kubernets中，Pod作为基本的执行单元，它可以拥有多个容器和存储数据卷，能够方便在每个容器中打包一个单一的应用，从而解耦了应用构建时和部署时的所关心的事项，已经能够方便在物理机/虚拟机之间进行迁移。API准入控制可以拒绝或者Pod，或者为Pod添加额外的调度约束，但是Kubelet才是Pod是否能够运行在特定Node上的最终裁决者，而不是scheduler或者DaemonSet。kubelet默认情况使用cAdvisor进行资源监控。负责管理Pod、容器、镜像、数据卷等，实现集群对节点的管理，并将容器的运行状态汇报给Kubernetes API Server。</p>
+<p>2、Container Runtime（容器运行时）</p>
+<p>每一个Node都会运行一个Container Runtime，其负责下载镜像和运行容器。Kubernetes本身并不停容器运行时环境，但提供了接口，可以插入所选择的容器运行时环境。kubelet使用Unix socket之上的gRPC框架与容器运行时进行通信，kubelet作为客户端，而CRI shim作为服务器。</p>
+<p><img src="https://yshtypora-img.oss-cn-wulanchabu.aliyuncs.com/img/1404880-20190917231417304-1871746688.png" alt="img"></p>
+<p>protocol buffers API提供两个gRPC服务，ImageService和RuntimeService。ImageService提供拉取、查看、和移除镜像的RPC。RuntimeSerivce则提供管理Pods和容器生命周期管理的RPC，以及与容器进行交互(exec/attach/port-forward)。容器运行时能够同时管理镜像和容器（例如：Docker和Rkt），并且可以通过同一个套接字提供这两种服务。在Kubelet中，这个套接字通过–container-runtime-endpoint和–image-service-endpoint字段进行设置。Kubernetes CRI支持的容器运行时包括docker、rkt、cri-o、frankti、kata-containers和clear-containers等。</p>
+<p>3、kube proxy</p>
+<p>基于一种公共访问策略（例如：负载均衡），服务提供了一种访问一群pod的途径。此方式通过创建一个虚拟的IP来实现，客户端能够访问此IP，并能够将服务透明的代理至Pod。每一个Node都会运行一个kube-proxy，kube proxy通过iptables规则引导访问至服务IP，并将重定向至正确的后端应用，通过这种方式kube-proxy提供了一个高可用的负载均衡解决方案。服务发现主要通过DNS实现。</p>
+<p>在Kubernetes中，kube proxy负责为Pod创建代理服务；引到访问至服务；并实现服务到Pod的路由和转发，以及通过应用的负载均衡。</p>
+<h5 id="1-2-3-kubectl"><a href="#1-2-3-kubectl" class="headerlink" title="1.2.3 kubectl"></a>1.2.3 kubectl</h5><p>kubectl是Kubernetes集群的命令行接口。运行kubectl命令的语法如下所示</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">$ kubectl [command] [TYPE] [NAME] [flags]</span><br><span class="line">##这里的command，TYPE、NAME和flags为：</span><br><span class="line">##comand：指定要对资源执行的操作，例如create、get、describe和delete</span><br><span class="line">##TYPE：指定资源类型，资源类型是大小写敏感的，开发者能够以单数、复数和缩略的形式。例如：</span><br><span class="line"></span><br><span class="line">$ kubectl get pod pod1 </span><br><span class="line">$ kubectl get pods pod1 </span><br><span class="line">$ kubectl get po pod1</span><br><span class="line">##NAME：指定资源的名称，名称也大小写敏感的。如果省略名称，则会显示所有的资源，例如:</span><br><span class="line"></span><br><span class="line">$kubectl get pods</span><br><span class="line">##flags：指定可选的参数。例如，可以使用-s或者–server参数指定Kubernetes API server的地址和端口。</span><br><span class="line">##另外，可以通过运行kubectl help命令获取更多的信息。</span><br></pre></td></tr></table></figure>
+
+<h5 id="7-1-2-4-add-one-附加项和其他依赖"><a href="#7-1-2-4-add-one-附加项和其他依赖" class="headerlink" title="7.1.2.4 add-one(附加项和其他依赖)"></a>7.1.2.4 add-one(附加项和其他依赖)</h5><p>在Kunbernetes中可以以附加项的方式扩展Kubernetes的功能，目前主要有网络、服务发现和可视化这三大类的附加项，下面是可用的一些附加项：</p>
+<p>1、网络和网络策略</p>
+<blockquote>
+<p><strong>ACI</strong> 通过与Cisco ACI集成的容器网络和网络安全。</p>
+<p><strong>Calico</strong>[ˈkælɪkoʊ]， 是一个安全的3层网络和网络策略提供者。</p>
+<p><strong>Canal</strong> 联合Fannel和Calico，通过网络和网络侧。</p>
+<p><strong>Cilium</strong> 是一个3层网络和网络侧插件，它能够透明的加强HTTP/API/L7 策略。既支持路由，也支持overlay/encapsultion模式。</p>
+<p><strong>Flannel</strong>[ˈflænl] 是一个overlay的网络提供者。</p>
+</blockquote>
+<p>2、服务发现</p>
+<p>CoreDNS 是一个灵活的，可扩展的DNS服务器，它能够作为Pod集群内的DNS进行安装。</p>
+<p>Ingress [ˈɪnɡres]提供基于Http协议的路由转发机制。</p>
+<p>3、可视化&amp;控制</p>
+<p>Dashboard 是Kubernetes的web用户界面。</p>
+<blockquote>
+<p><strong>小结</strong></p>
+<ul>
+<li>etcd 保存了整个集群的状态,服务注册发现；</li>
+<li>kube-apiserver 提供了资源操作的唯一入口，并提供认证、授权、访问控制等机制；</li>
+<li>kube-controller-manager 负责维护集群的状态，比如故障检测、自动扩展、滚动更新等；</li>
+<li>kube-scheduler 负责资源的调度，按照预定的调度策略将 Pod 调度到相应的机器上；</li>
+<li>kubelet 负责维持容器的生命周期，同时也负责 Volume（CVI）和网络（CNI）的管理；</li>
+<li>Container runtime 负责镜像管理以及 Pod 和容器的真正运行（CRI），默认的容器运行时为 Docker；</li>
+<li>kube-proxy 负责为 Service 提供 cluster 内部的服务发现和负载均衡；</li>
+</ul>
+</blockquote>
+<h4 id="7-1-3-kubenetes工作原理"><a href="#7-1-3-kubenetes工作原理" class="headerlink" title="7.1.3 kubenetes工作原理"></a>7.1.3 kubenetes工作原理</h4><h5 id="7-1-3-1工作原理"><a href="#7-1-3-1工作原理" class="headerlink" title="7.1.3.1工作原理"></a>7.1.3.1工作原理</h5><img src="https://yshtypora-img.oss-cn-wulanchabu.aliyuncs.com/img/1082769-20180401111010026-512269849.png" style="zoom:60%;" />
+
+<blockquote>
+<ol>
+<li>准备包含应用程序的Deployment的yml文件，然后通过kubectl客户端工具发送给ApiServer。</li>
+<li>ApiServer接收到客户端的请求并将资源内容存储到数据库(etcd)中。</li>
+<li>Controller组件(包括scheduler、replication、endpoint)监控资源变化并作出反应。</li>
+<li>ReplicaSet检查数据库变化，创建期望数量的pod实例。</li>
+<li>Scheduler再次检查数据库变化，发现尚未被分配到具体执行节点(node)的Pod，然后根据一组相关规则将pod分配到可以运行它们的节点上，并更新数据库，记录pod分配情况。</li>
+<li>Kubelete监控数据库变化，管理后续pod的生命周期，发现被分配到它所在的节点上运行的那些pod。如果找到新pod，则会在该节点上运行这个新pod。</li>
+<li>kuberproxy运行在集群各个主机上，管理网络通信，如服务发现、负载均衡。当有数据发送到主机时，将其路由到正确的pod或容器。对于从主机上发出的数据，它可以基于请求地址发现远程服务器，并将数据正确路由，在某些情况下会使用轮循调度算法(Round-robin)将请求发送到集群中的多个实例。</li>
+</ol>
+</blockquote>
+<h5 id="1-3-2-pod创建的时序图"><a href="#1-3-2-pod创建的时序图" class="headerlink" title="1.3.2 pod创建的时序图"></a>1.3.2 pod创建的时序图</h5><p>1、用户提交创建Pod的请求，可以通过API Server的REST API ，也可用Kubectl命令行工具，支持Json和Yaml两种格式；</p>
+<p>2、API Server 处理用户请求，存储Pod数据到Etcd；</p>
+<p>3、Schedule通过和 API Server的watch机制，查看到新的pod，尝试为Pod绑定Node；</p>
+<p>4、过滤主机：调度器用一组规则过滤掉不符合要求的主机（比如Pod指定了所需要的资源，那么就要过滤掉资源不够的主机）；</p>
+<p>5、主机打分：对第一步筛选出的符合要求的主机进行打分，在主机打分阶段，调度器会考虑一些整体优化策略。比如把一个Replication Controller的副本分布到不同的主机上，使用最低负载的主机等；</p>
+<p>6、选择主机：选择打分最高的主机，进行binding操作，结果存储到Etcd中；</p>
+<p>7、kubelet根据调度结果执行Pod创建操作：</p>
+<p>（1）绑定成功后，会启动container, docker run,</p>
+<p>（2）scheduler会调用API Server的API在etcd中创建一个bound pod对象，描述在一个工作节点上绑定运行的所有pod信息。</p>
+<p>（3）运行在每个工作节点上的kubelet也会定期与etcd同步bound pod信息</p>
+<p>（4）一旦发现应该在该工作节点上运行的bound pod对象没有更新，则调用Docker API创建并启动pod内的容器。</p>
+<h3 id="2-部署Kubernetes集群（kubeadm）"><a href="#2-部署Kubernetes集群（kubeadm）" class="headerlink" title="2 部署Kubernetes集群（kubeadm）"></a>2 部署Kubernetes集群（kubeadm）</h3><h4 id="2-1-实验准备"><a href="#2-1-实验准备" class="headerlink" title="2.1 实验准备"></a>2.1 实验准备</h4><p>1、实验环境（克隆三台裸机-未配置）</p>
+<table>
+<thead>
+<tr>
+<th align="center">主机名</th>
+<th align="center">IP地址</th>
+<th align="center">节点角色</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">master</td>
+<td align="center">192.168.200.10</td>
+<td align="center">管理节点（2C、2G）</td>
+</tr>
+<tr>
+<td align="center">node1</td>
+<td align="center">192.168.200.11</td>
+<td align="center">工作节点（2C、2G）</td>
+</tr>
+<tr>
+<td align="center">node2</td>
+<td align="center">192.168.200.12</td>
+<td align="center">工作节点（2C、2G）</td>
+</tr>
+</tbody></table>
+<p>2、基础配置</p>
+<p>（1）设置主机名（3台）</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">*<span class="comment">//master</span></span><br><span class="line"># hostnamectl set-hostname master</span><br><span class="line"># bash</span><br><span class="line"></span><br><span class="line"><span class="comment">//node1</span></span><br><span class="line"># hostnamectl set-hostname node1</span><br><span class="line"># bash</span><br><span class="line"></span><br><span class="line"><span class="comment">//node2</span></span><br><span class="line"># hostnamectl set-hostname node2</span><br><span class="line"># bash</span><br></pre></td></tr></table></figure>
+
+<p>（2）配置主机网络（3台）</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"># vi /etc/sysconfig/network-scripts/ifcfg-ens33</span><br><span class="line">TYPE=Ethernet</span><br><span class="line">BOOTPROTO=static</span><br><span class="line">NAME=ens33</span><br><span class="line">DEVICE=ens33</span><br><span class="line">ONBOOT=yes</span><br><span class="line">IPADDR=<span class="number">192.168</span><span class="number">.200</span><span class="number">.10</span>      #master：<span class="number">10</span>，node1：<span class="number">11</span>，node2：<span class="number">12</span></span><br><span class="line">PROFIX=<span class="number">24</span></span><br><span class="line">GATEWAY=<span class="number">192.168</span><span class="number">.200</span><span class="number">.2</span></span><br><span class="line">DNS1=<span class="number">114.114</span><span class="number">.114</span><span class="number">.114</span></span><br><span class="line"></span><br><span class="line"># systemctl restart network</span><br><span class="line"># ip addr list ens33 </span><br><span class="line"># ping www.qq.com -c <span class="number">2</span></span><br><span class="line"></span><br><span class="line"><span class="comment">//验证各节点mac的UUID，不能相同（克隆会自动修改）</span></span><br><span class="line"># cat /sys/class/net/ens33/address</span><br><span class="line"># cat /sys/class/dmi/id/product_uuid</span><br></pre></td></tr></table></figure>
+
+<p>（3）xshell（/MobaXterm）远程连接、安装常用软件</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"># yum install -y vim bash-completion wget unzip net-tools</span><br><span class="line"># bash</span><br><span class="line"></span><br><span class="line">========命令补全（重要）========</span><br><span class="line">yum -y install bash-completion</span><br><span class="line">source /etc/profile.d/bash_completion.sh</span><br><span class="line">=============================</span><br></pre></td></tr></table></figure>
+
+<p>（4）免密登录（master）</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line">*<span class="comment">//master，编辑/etc/hosts文件（DNS劫持）</span></span><br><span class="line"># cat &lt;&lt;EOF &gt;&gt;/etc/hosts</span><br><span class="line"><span class="number">192.168</span><span class="number">.200</span><span class="number">.10</span> master</span><br><span class="line"><span class="number">192.168</span><span class="number">.200</span><span class="number">.11</span> node1</span><br><span class="line"><span class="number">192.168</span><span class="number">.200</span><span class="number">.12</span> node2</span><br><span class="line">EOF</span><br><span class="line"></span><br><span class="line"><span class="comment">//查看配置文件</span></span><br><span class="line"># cat /etc/hostscat /etc/hosts</span><br><span class="line"></span><br><span class="line"><span class="comment">//配置免密登录</span></span><br><span class="line"># ssh-keygen    #一路回车</span><br><span class="line"># ssh-copy-id node1    #yes-<span class="number">-000000</span></span><br><span class="line"># ssh-copy-id node2    #yes-<span class="number">-000000</span></span><br><span class="line"></span><br><span class="line">========主机较多时也可以通过for循环操作（不操作）========</span><br><span class="line">ssh-keygen</span><br><span class="line">for i in master node1 node2</span><br><span class="line">do</span><br><span class="line">ssh-copy-id $i </span><br><span class="line">done</span><br><span class="line"></span><br><span class="line"><span class="comment">//思考：怎样实现免交互</span></span><br><span class="line">=================================================== </span><br><span class="line"> </span><br><span class="line"><span class="comment">//拷贝/etc/hosts文件到node1、node2</span></span><br><span class="line"># scp /etc/hosts node1:/etc</span><br><span class="line"># scp /etc/hosts node2:/etc</span><br></pre></td></tr></table></figure>
+
+<p>（5）关闭防火墙和selinux（/iptables）（3台）</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"># systemctl stop firewalld &amp;&amp; systemctl disable firewalld</span><br><span class="line"># sed -i &#x27;s/SELINUX=enforcing/SELINUX=disabled/&#x27; /etc/selinux/config</span><br><span class="line"># grep SELINUX=disabled /etc/selinux/config</span><br><span class="line"># setenforce <span class="number">0</span></span><br><span class="line"></span><br><span class="line"><span class="comment">//清空iptables规则</span></span><br><span class="line"># iptables -F                  </span><br><span class="line"># iptables-save</span><br></pre></td></tr></table></figure>
+
+<p>（6）关闭swap分区</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"># swapoff -a #临时关闭</span><br><span class="line"># sed -ri &#x27;s/.*swap.* /#&amp;/&#x27; /etc/fstab #永久关闭</span><br></pre></td></tr></table></figure>
+
+<p>（7）配置系统内核参数，添加网桥过滤及地址转发（3台）</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">*# cat &gt; /etc/sysctl.d/k8s.conf &lt;&lt;EOF</span><br><span class="line">net.bridge.bridge-nf-call-ip6tables = <span class="number">1</span></span><br><span class="line">net.bridge.bridge-nf-call-iptables = <span class="number">1</span></span><br><span class="line">net.ipv4.ip_forward = <span class="number">1</span></span><br><span class="line">vm.swappiness = <span class="number">0</span></span><br><span class="line">EOF</span><br><span class="line"></span><br><span class="line"><span class="comment">//向内核中加载模块</span></span><br><span class="line"># modprobe br_netfilter</span><br><span class="line"></span><br><span class="line"><span class="comment">//手动加载所有的配置文件</span></span><br><span class="line"># sysctl --system</span><br><span class="line"></span><br><span class="line"><span class="comment">//单独加载配置文件（和上面命令二选一）</span></span><br><span class="line"># sysctl -p /etc/sysctl.d/k8s.conf</span><br><span class="line"></span><br><span class="line">========其他内核模块配置--扩展阅读===========</span><br><span class="line">https:<span class="comment">//blog.51cto.com/8999a/2784601</span></span><br><span class="line">=========================================</span><br></pre></td></tr></table></figure>
+
+<p>（8）配置时间服务器</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//修改时区# timedatectl    ##查看时区# timedatectl set-timezone Asia/Shanghai# reboot//修改时间服务器为阿里云时间服务器# yum install -y chrony# systemctl enable chronyd &amp;&amp; systemctl start chronyd# vi /etc/chrony.conf……server ntp1.aliyun.com iburst        #修改server行（3-7行）server ntp2.aliyun.com iburstserver ntp3.aliyun.com iburstserver ntp4.aliyun.com iburst……# systemctl restart chronyd//查看时间同步状态# timedatectl status# chronyc sources -c//开启网络时间同步# timedatectl set-ntp true//强制同步时钟# chronyc -a makestep</span></span><br></pre></td></tr></table></figure>
+
+<p>3、配置yum仓库</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">*<span class="comment">//备份原有的源# mkdir /opt/yum-bak# mv /etc/yum.repos.d/* /opt/yum-bak//下载基础源（阿里）# curl -o /etc/yum.repos.d/CentOS-Base.repo http://mirrors.aliyun.com/repo/Centos-7.repo//下载epel源# curl -o /etc/yum.repos.d/epel.repo http://mirrors.aliyun.com/repo/epel-7.repo//配置docker-ce源# curl -o  /etc/yum.repos.d/docker-ce.repo http://mirrors.aliyun.com/docker-ce/linux/centos/docker-ce.repo//配置Kubernets源# cat &lt;&lt;EOF &gt; /etc/yum.repos.d/kubernetes.repo[kubernetes]name=Kubernetesbaseurl=https://mirrors.aliyun.com/kubernetes/yum/repos/kubernetes-el7-x86_64/gpgcheck=0EOF//查看yum仓库# yum clean all# yum repolist========yum仓库说明========实际使用中根据下载速度选择清华、华为、中科大或163等源，具体操作自行百度==========================</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="2-2-安装Docker-ce（3台）"><a href="#2-2-安装Docker-ce（3台）" class="headerlink" title="2.2  安装Docker-ce（3台）"></a>2.2  安装Docker-ce（3台）</h4><p>1、安装docker-ce</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">*# yum list --showduplicates docker-ce    #列出可用版本# yum install -y yum-utils device-mapper-persistent-data lvm2# yum install  -y docker-ce<span class="comment">//启动docker# systemctl enable docker &amp;&amp; systemctl start docker//查看# systemctl status docker# docker info</span></span><br></pre></td></tr></table></figure>
+
+<p>2、配置docker镜像加速</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//修改docker配置文件# vim /etc/docker/daemon.json&#123;  &quot;registry-mirrors&quot;: [&quot;https://s2q9fn53.mirror.aliyuncs.com&quot;],  &quot;exec-opts&quot;: [&quot;native.cgroupdriver=systemd&quot;]&#125;# systemctl daemon-reload &amp;&amp; systemctl restart docker</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="2-3-安装Kubernetes集群"><a href="#2-3-安装Kubernetes集群" class="headerlink" title="2.3 安装Kubernetes集群"></a>2.3 安装Kubernetes集群</h4><p>1、安装kubelet、kubeadm和kubectl（3台）</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">*<span class="comment">//查看可用版本，k8s不同版本不兼容# yum list kubelet --showduplicates | sort -r# yum install -y kubelet kubeadm kubectl</span></span><br></pre></td></tr></table></figure>
+
+<p>2、启动相关服务（3台）</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"># systemctl enable kubelet &amp;&amp; systemctl start kubelet &amp;&amp; systemctl status kubelet</span><br></pre></td></tr></table></figure>
+
+<h4 id="2-4-配置Kubernetes集群"><a href="#2-4-配置Kubernetes集群" class="headerlink" title="2.4  配置Kubernetes集群"></a>2.4  配置Kubernetes集群</h4><p>1、初始化Kubernetes集群（master）</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">*<span class="comment">//批量打包镜像# docker save $(docker images | grep -v REPOSITORY | awk &#x27;BEGIN&#123;OFS=&quot;:&quot;;ORS=&quot; &quot;&#125;&#123;print $1,$2&#125;&#x27;) -o k8s-master.tar# ll -h k8s-master.tar//导入镜像# docker load -i k8s-master.tar//列出所需镜像版本# kubeadm config images list//初始化（下载镜像等几分钟或导入镜像）# kubeadm init --kubernetes-version=1.22.3  \--apiserver-advertise-address=192.168.200.10  \--image-repository registry.aliyuncs.com/google_containers  \--service-cidr=10.10.0.0/16 --pod-network-cidr=10.244.0.0/16##========安装成功返回信息（重要）========##Your Kubernetes control-plane has initialized successfully!To start using your cluster, you need to run the following as a regular user:  mkdir -p $HOME/.kube  sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config  sudo chown $(id -u):$(id -g) $HOME/.kube/configAlternatively, if you are the root user, you can run:  export KUBECONFIG=/etc/kubernetes/admin.confYou should now deploy a pod network to the cluster.Run &quot;kubectl apply -f [podnetwork].yaml&quot; with one of the options listed at:  https://kubernetes.io/docs/concepts/cluster-administration/addons/Then you can join any number of worker nodes by running the following on each as root:kubeadm join 192.168.200.10:6443 --token ur572b.42fmet5rdbxobldh \	--discovery-token-ca-cert-hash sha256:de5e2c94a6f7654c298eebc4a0e222330022446743bfe7a3581dce6b5de1d9c9 //查看集群状态*# kubectl get cs========扩展阅读========kubectl get cs显示unhealthy的解决办法https://www.cnblogs.com/wuliping/p/13780147.html=======================//查看pod资源，确保返回的信息都是running;不指定具体的名称空间，表示查看本节点所有的名称空间# kubectl get pod --all-namespaces# kubectl get pods -n kube-system========补充：kubeadm init选项说明======初始化集群需使用kubeadm init命令，可以指定具体参数初始化，也可以指定配置文件初始化。可选参数：①--apiserver-advertise-address：apiserver通告给其他组件的IP地址，一般应该为Master节点的用于集群内部通信的IP地址，0.0.0.0表示节点上所有可用地址②--apiserver-bind-port：apiserver的监听端口，默认是6443③--cert-dir：通讯的ssl证书文件，默认/etc/kubernetes/pki④--control-plane-endpoint：控制台平面的共享终端，可以是负载均衡的ip地址或者dns域名，高可用集群时需要添加⑤--image-repository：拉取镜像的镜像仓库，默认是k8s.gcr.io⑥--kubernetes-version：指定kubernetes版本⑦--pod-network-cidr：pod资源的网段，需与pod网络插件的值设置一致。通常，Flannel网络插件的默认为10.244.0.0/16，Calico插件的默认值为192.168.0.0/16；⑧--service-cidr：service资源的网段⑨--service-dns-domain：service全域名的后缀，默认是cluster.local========问题：怎样找回节点加入集群的token======== 1、忘记token用什么命令找回  # kubeadm token create --print-join-command    //一条命令，推荐 2、创建永不过期的token # kubeadm token create --ttl 0</span></span><br></pre></td></tr></table></figure>
+
+<p>2、使用kubectl命令的环境配置</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//普通用户环境配置$ mkdir -p $HOME/.kube$ sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config$ sudo chown $(id -u):$(id -g) $HOME/.kube/config//root user# export KUBECONFIG=/etc/kubernetes/admin.conf//K8S命令补全# source &lt;(kubectl completion bash)========或者========//写法1# echo &quot;source &lt;(kubectl completion bash)&quot; &gt;&gt; ~/.bash_profile# source .bash_profile//写法2# source /usr/share/bash-completion/bash_completion # source &lt;(kubectl completion bash) # echo &quot;source &lt;(kubectl completion bash)&quot; &gt;&gt; ~/.bashrc========拓展一下=======https://www.cnblogs.com/yuanqiangfei/p/10232148.html</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="2-5-安装flannel网络（master）"><a href="#2-5-安装flannel网络（master）" class="headerlink" title="2.5 安装flannel网络（master）"></a>2.5 安装flannel网络（master）</h4><blockquote>
+<p>基础知识</p>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/weixin_45483207/article/details/120189178">https://blog.csdn.net/weixin_45483207/article/details/120189178</a></p>
+<p>github项目</p>
+<p><a target="_blank" rel="noopener" href="https://github.com/flannel-io/flannel/tree/master/Documentation">https://github.com/flannel-io/flannel/tree/master/Documentation</a></p>
+</blockquote>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//部署集群后pod网络部署信息 You should now deploy a pod network to the cluster. Run &quot;kubectl apply -f [podnetwork].yaml&quot; with one of the options listed at: https://kubernetes.io/docs/concepts/cluster-administration/addons///验证nodes状态为NoReady# kubectl get nodes//由于DNS污染，需要修改hosts文件，增加下面的解析（网络问题导致安装失败）# cat &gt;&gt; /etc/hosts &lt;&lt;EOF 199.232.68.133 raw.githubusercontent.com199.232.68.133 user-images.githubusercontent.com199.232.68.133 avatars2.githubusercontent.com199.232.68.133 avatars1.githubusercontent.comEOF# kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml//验证# kubectl get pods -n kube-system# yum install -y net-tools# ifconfig ========由于网络原因导致flannel网络安装失败========1、手工编写kube-flannel.yml文件2、导入flannel镜像# docker load -i flannel.tar# docker load -i flannel-cni-plugin.tar# kubectl apply -f kube-flannel-new.yml 3、kube-flannel.yml修改quay.io镜像地址解决flannel Init:ImagePullBackOff错误https://www.cnblogs.com/360minitao/p/13237801.html# sed -i &#x27;s/quay.io/quay-mirror.qiniu.com/&#x27; kube-flannel.yml </span></span><br></pre></td></tr></table></figure>
+
+<h4 id="2-6-节点加入集群（node1、node2）"><a href="#2-6-节点加入集群（node1、node2）" class="headerlink" title="2.6 节点加入集群（node1、node2）"></a>2.6 节点加入集群（node1、node2）</h4><figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"># kubeadm join <span class="number">192.168</span><span class="number">.200</span><span class="number">.10</span>:<span class="number">6443</span> --token qhn5x3<span class="number">.3</span>dht86coigln5p2r \	--discovery-token-ca-cert-hash sha256:<span class="number">29373</span>c4446de02109d37197f256c570ade8ed210ce3d2da0543f64065ecf5be7 <span class="comment">//出现错误重新加入# kubeadm reset</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="2-7-测试运行nginx（master）"><a href="#2-7-测试运行nginx（master）" class="headerlink" title="2.7 测试运行nginx（master）"></a>2.7 测试运行nginx（master）</h4><p>1、污点</p>
+<p>taint：污点的意思。如果一个节点被打上了污点，那么pod是不允许运行在这个节点上面的，默认情况下集群不会在master上调度pod，如果偏想在master上调度Pod，可以执行如下操作：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">## 查看污点# kubectl describe node master|grep -i taintsTaints:             &lt;none&gt;##删除默认污点# kubectl taint nodes --all node-role.kubernetes.io/master- </span><br></pre></td></tr></table></figure>
+
+<p>2、部署测试用例</p>
+<p>（1）命令方式部署httpd</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"># kubectl run httpd-app --image=httpd# kubectl get pod -o wide# curl <span class="number">10.122</span><span class="number">.0</span><span class="number">.7</span></span><br></pre></td></tr></table></figure>
+
+<p>（2）配置文件部署nginx</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"># mkdir /root/kubeadm-ymal# cd /root/kubeadm-ymal/# vi pod.yamlapiVersion: v1kind: Podmetadata: name: nginx labels:    app: webspec: containers:    - name: nginx      image: docker.io/nginx      ports:       - containerPort: <span class="number">80</span># kubectl create -f pod.yaml# kubectl get pod# kubectl get pod -o wide# curl <span class="number">10.122</span><span class="number">.2</span><span class="number">.4</span></span><br></pre></td></tr></table></figure>
+
+<p>（3）配置文件部署httpd</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"># kubectl create deployment nginx1 --image=nginxdeployment.apps/nginx1 created# kubectl expose deployment nginx1 --port=<span class="number">80</span> --type=NodePortservice/nginx1 exposed# kubectl get pod,svcNAME                         READY   STATUS    RESTARTS   AGEpod/httpd-app                <span class="number">1</span>/<span class="number">1</span>     Running   <span class="number">0</span>          <span class="number">13</span>mpod/nginx                    <span class="number">1</span>/<span class="number">1</span>     Running   <span class="number">0</span>          <span class="number">35</span>mpod/nginx1-b97c459f7-p9z4n   <span class="number">1</span>/<span class="number">1</span>     Running   <span class="number">0</span>          <span class="number">24</span>sNAME                 TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)        AGEservice/kubernetes   ClusterIP   <span class="number">10.10</span><span class="number">.0</span><span class="number">.1</span>       &lt;none&gt;        <span class="number">443</span>/TCP        <span class="number">44</span>mservice/nginx1       NodePort    <span class="number">10.10</span><span class="number">.218</span><span class="number">.104</span>   &lt;none&gt;        <span class="number">80</span>:<span class="number">31551</span>/TCP   <span class="number">9</span>s##浏览器访问http:<span class="comment">//192.168.200.10:31551/</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="2-8-安装Dashboard监控（master）"><a href="#2-8-安装Dashboard监控（master）" class="headerlink" title="2.8  安装Dashboard监控（master）"></a>2.8  安装Dashboard监控（master）</h4><p>1、编辑dashboard的yaml文件</p>
+<blockquote>
+<p>参考文档</p>
+<p><a target="_blank" rel="noopener" href="https://leheavengame.com/article/61547a4b995acf6bc1e13e85">https://leheavengame.com/article/61547a4b995acf6bc1e13e85</a></p>
+</blockquote>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//下载yaml，部署dashboard# wget https://raw.githubusercontent.com/kubernetes/dashboard/v2.3.1/aio/deploy/recommended.yaml# mv recommended.yaml dashboard-2.3.1.yaml   #本地//创建超级管理员的账号用于登录Dashboard# vim admin-user.yaml    #本地//部署dashboard# kubectl apply -f dashboard-2.3.1.yaml -f admin-user.yaml# kubectl get svc -n kubernetes-dashboard# ss -tnl|grep 30002</span></span><br></pre></td></tr></table></figure>
+
+<p>2、检查相关服务运行状态</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"># kubectl get all -n kubernetes-dashboard# kubectl get pod -A | grep kubernetes-dashboard</span><br></pre></td></tr></table></figure>
+
+<p>3、使用浏览器访问</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//任意node节点IP:port（30002）https://192.168.200.10:30002/</span></span><br></pre></td></tr></table></figure>
+
+<p>4、查看访问dashboard的认证令牌（token值）</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"># kubectl get secret -A | grep admin# kubectl describe secret admin-user-token<span class="number">-28</span>vq6 -n kubernetes-dashboard    ##复制token登录</span><br></pre></td></tr></table></figure>
+
+<p>5、创建 kubeconfig 文件以配置对集群的访问权限（扩展）</p>
+<blockquote>
+<p>参考文档</p>
+<p><a target="_blank" rel="noopener" href="https://leheavengame.com/article/61547a4b995acf6bc1e13e85">https://leheavengame.com/article/61547a4b995acf6bc1e13e85</a></p>
+</blockquote>
+<h4 id="2-9-kuboard监控"><a href="#2-9-kuboard监控" class="headerlink" title="2.9 kuboard监控"></a>2.9 kuboard监控</h4><p>1、安装</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"># kubectl apply -f https:<span class="comment">//kuboard.cn/install-script/kuboard.yaml# kubectl apply -f https://addons.kuboard.cn/metrics-server/0.3.7/metrics-server.yaml</span></span><br></pre></td></tr></table></figure>
+
+<p>2、查看kuboard运行状态</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"># kubectl get pods -l k8s.kuboard.cn/name=kuboard -n kube-systemNAME                       READY   STATUS    RESTARTS   AGEkuboard<span class="number">-74</span>c645f5df<span class="number">-8</span>lcct   <span class="number">1</span>/<span class="number">1</span>     Running   <span class="number">0</span>          <span class="number">38</span>s</span><br></pre></td></tr></table></figure>
+
+<p>3、获取Token</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"># echo $(kubectl -n kube-system get secret $(kubectl -n kube-system get secret | grep kuboard-user | awk &#x27;&#123;print $1&#125;&#x27;) -o go-template=&#x27;&#123;&#123;.data.token&#125;&#125;&#x27; | base64 -d)</span><br></pre></td></tr></table></figure>
+
+<p>4、访问Kuboard</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http:<span class="comment">//任意一个Worker节点的IP地址:32567/</span></span><br></pre></td></tr></table></figure>
+
+
+
+<p>新版</p>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_33709508/article/details/121012914">https://blog.csdn.net/qq_33709508/article/details/121012914</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.kuboard.cn/install/install-k8s.html#%E7%A7%BB%E9%99%A4worker%E8%8A%82%E7%82%B9%E5%B9%B6%E9%87%8D%E8%AF%95">https://www.kuboard.cn/install/install-k8s.html#%E7%A7%BB%E9%99%A4worker%E8%8A%82%E7%82%B9%E5%B9%B6%E9%87%8D%E8%AF%95</a></p>
+<p>应用：</p>
+<p>1、从零开始搭建K8S、Jenkins持续集成环境</p>
+<p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/frankzhou/p/15407729.html">https://www.cnblogs.com/frankzhou/p/15407729.html</a></p>
+<p>2、部署LNMP</p>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_41475058/article/details/88898004">https://blog.csdn.net/qq_41475058/article/details/88898004</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.jianshu.com/p/f384660a9615">https://www.jianshu.com/p/f384660a9615</a></p>
+<p>3、</p>
+<p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/wuzhenzhao/p/12076827.html">https://www.cnblogs.com/wuzhenzhao/p/12076827.html</a></p>
+<p>参考安装</p>
+<p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/yuhangwang/p/11372404.html">https://www.cnblogs.com/yuhangwang/p/11372404.html</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/xiaoyuxixi/p/12142218.html">https://www.cnblogs.com/xiaoyuxixi/p/12142218.html</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.baidu.com/link?url=s_dp3je1-GA-TtKmqjm8-QNBmjSfuhv37l-AUHypy8JvTg7OITgaLy7fvjBecBoEhVNkV8GJqSyvlMq3C2-d1K&amp;wd=&amp;eqid=a3a8c4a10017051500000003617c0313">https://www.baidu.com/link?url=s_dp3je1-GA-TtKmqjm8-QNBmjSfuhv37l-AUHypy8JvTg7OITgaLy7fvjBecBoEhVNkV8GJqSyvlMq3C2-d1K&amp;wd=&amp;eqid=a3a8c4a10017051500000003617c0313</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.opss.cn/8211.html">https://www.opss.cn/8211.html</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.jianshu.com/p/f12c9b20b70f">https://www.jianshu.com/p/f12c9b20b70f</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.baidu.com/link?url=PUIIUrGwHGBV-IOz719l6uS-TpfPECxOG2QbdxPbo5QcHNX017bMpN_djkPJ0oDugmS-ZuOntHaXsdmz8mvj8a&amp;wd=&amp;eqid=ba462c570014d29500000003617bff9a">https://www.baidu.com/link?url=PUIIUrGwHGBV-IOz719l6uS-TpfPECxOG2QbdxPbo5QcHNX017bMpN_djkPJ0oDugmS-ZuOntHaXsdmz8mvj8a&amp;wd=&amp;eqid=ba462c570014d29500000003617bff9a</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/zhangzhide/p/14760210.html(%E7%AE%80%E5%8D%95%E6%B5%8B%E8%AF%95)">https://www.cnblogs.com/zhangzhide/p/14760210.html(简单测试)</a></p>
+
+      
+    </div>
+    <div class="article-footer">
+      <blockquote class="mt-2x">
+  <ul class="post-copyright list-unstyled">
+    
+    <li class="post-copyright-link hidden-xs">
+      <strong>本文链接：</strong>
+      <a href="http://example.com/2022/01/16/k8s-%E5%85%A8%E9%9D%A2/" title="k8s-全面" target="_blank" rel="external">http://example.com/2022/01/16/k8s-全面/</a>
+    </li>
+    
+    <li class="post-copyright-license">
+      <strong>版权声明： </strong> 本博客所有文章除特别声明外，均采用 <a href="http://creativecommons.org/licenses/by/4.0/deed.zh" target="_blank" rel="external">CC BY 4.0 CN协议</a> 许可协议。转载请注明出处！
+    </li>
+  </ul>
+</blockquote>
+
+
+<div class="panel panel-default panel-badger">
+  <div class="panel-body">
+    <figure class="media">
+      <div class="media-left">
+        <a href="https://github.com/cofess" target="_blank" class="img-burn thumb-sm visible-lg">
+          <img src="/images/avatar.jpg" class="img-rounded w-full" alt="">
+        </a>
+      </div>
+      <div class="media-body">
+        <h3 class="media-heading"><a href="https://github.com/cofess" target="_blank"><span class="text-dark">云先森</span><small class="ml-1x">一个酷酷的学生</small></a></h3>
+        <div>学不死往死学。</div>
+      </div>
+    </figure>
+  </div>
+</div>
+
+
+    </div>
+  </article>
+  
+    
+  <section id="comments">
+  	
+      <div id="vcomments"></div>
+    
+  </section>
+
+
+  
+</div>
+
+  <nav class="bar bar-footer clearfix" data-stick-bottom>
+  <div class="bar-inner">
+  
+  <ul class="pager pull-left">
+    
+    <li class="prev">
+      <a href="/2022/01/16/%E6%9D%A8%E5%AE%9D%E5%AE%9D%E4%BA%B2%E5%90%AF/" title="杨宝宝亲启"><i class="icon icon-angle-left" aria-hidden="true"></i><span>&nbsp;&nbsp;上一篇</span></a>
+    </li>
+    
+    
+    <li class="next">
+      <a href="/2022/01/13/docker%E7%A7%81%E6%9C%89%E4%BB%93%E5%BA%93/" title="docker私有仓库"><span>下一篇&nbsp;&nbsp;</span><i class="icon icon-angle-right" aria-hidden="true"></i></a>
+    </li>
+    
+    
+  </ul>
+  
+  
+  <!-- Button trigger modal -->
+  <button type="button" class="btn btn-fancy btn-donate pop-onhover bg-gradient-warning" data-toggle="modal" data-target="#donateModal"><span>赏</span></button>
+  <!-- <div class="wave-icon wave-icon-danger btn-donate" data-toggle="modal" data-target="#donateModal">
+    <div class="wave-circle"><span class="icon"><i class="icon icon-bill"></i></span></div>
+  </div> -->
+  
+  
+  <div class="bar-right">
+    
+    <div class="share-component" data-sites="weibo,qq,wechat,facebook,twitter" data-mobile-sites="weibo,qq,qzone"></div>
+    
+  </div>
+  </div>
+</nav>
+  
+<!-- Modal -->
+<div class="modal modal-center modal-small modal-xs-full fade" id="donateModal" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content donate">
+      <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+      <div class="modal-body">
+        <div class="donate-box">
+          <div class="donate-head">
+            <p>感谢您的支持，我会继续努力的!</p>
+          </div>
+          <div class="tab-content">
+            <div role="tabpanel" class="tab-pane fade active in" id="alipay">
+              <div class="donate-payimg">
+                <img src="/images/donate/alipayimg.png" alt="扫码支持" title="扫一扫" />
+              </div>
+              <p class="text-muted mv">扫码打赏，你说多少就多少</p>
+              <p class="text-grey">打开支付宝扫一扫，即可进行扫码打赏哦</p>
+            </div>
+            <div role="tabpanel" class="tab-pane fade" id="wechatpay">
+              <div class="donate-payimg">
+                <img src="/images/donate/wechatpayimg.png" alt="扫码支持" title="扫一扫" />
+              </div>
+              <p class="text-muted mv">扫码打赏，你说多少就多少</p>
+              <p class="text-grey">打开微信扫一扫，即可进行扫码打赏哦</p>
+            </div>
+          </div>
+          <div class="donate-footer">
+            <ul class="nav nav-tabs nav-justified" role="tablist">
+              <li role="presentation" class="active">
+                <a href="#alipay" id="alipay-tab" role="tab" data-toggle="tab" aria-controls="alipay" aria-expanded="true"><i class="icon icon-alipay"></i> 支付宝</a>
+              </li>
+              <li role="presentation" class="">
+                <a href="#wechatpay" role="tab" id="wechatpay-tab" data-toggle="tab" aria-controls="wechatpay" aria-expanded="false"><i class="icon icon-wepay"></i> 微信支付</a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+</main>
+
+  <footer class="footer" itemscope itemtype="http://schema.org/WPFooter">
+	
+	
+    <ul class="social-links">
+    	
+        <li><a href="https://github.com/cofess" target="_blank" title="Github" data-toggle=tooltip data-placement=top><i class="icon icon-github"></i></a></li>
+        
+        <li><a href="http://weibo.com/cofess" target="_blank" title="Weibo" data-toggle=tooltip data-placement=top><i class="icon icon-weibo"></i></a></li>
+        
+        <li><a href="https://twitter.com/iwebued" target="_blank" title="Twitter" data-toggle=tooltip data-placement=top><i class="icon icon-twitter"></i></a></li>
+        
+        <li><a href="https://www.behance.net/cofess" target="_blank" title="Behance" data-toggle=tooltip data-placement=top><i class="icon icon-behance"></i></a></li>
+        
+        <li><a href="/atom.xml" target="_blank" title="Rss" data-toggle=tooltip data-placement=top><i class="icon icon-rss"></i></a></li>
+        
+    </ul>
+
+    <div class="copyright">
+    	
+        <div class="publishby">
+        	Theme by <a href="https://github.com/cofess" target="_blank"> cofess </a>base on <a href="https://github.com/cofess/hexo-theme-pure" target="_blank">pure</a>.
+        </div>
+    </div>
+</footer>
+  <script src="//cdn.jsdelivr.net/npm/jquery@1.12.4/dist/jquery.min.js"></script>
+<script>
+window.jQuery || document.write('<script src="js/jquery.min.js"><\/script>')
+</script>
+
+<script src="/js/plugin.min.js"></script>
+
+
+<script src="/js/application.js"></script>
+
+
+    <script>
+(function (window) {
+    var INSIGHT_CONFIG = {
+        TRANSLATION: {
+            POSTS: '文章',
+            PAGES: '页面',
+            CATEGORIES: '分类',
+            TAGS: '标签',
+            UNTITLED: '(未命名)',
+        },
+        ROOT_URL: '/',
+        CONTENT_URL: '/content.json',
+    };
+    window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+})(window);
+</script>
+
+<script src="/js/insight.js"></script>
+
+
+
+
+
+
+   
+
+
+
+
+   
+    
+  <script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/valine"></script>
+  <script type="text/javascript">
+  var GUEST = ['nick', 'mail', 'link'];
+  var meta = 'nick,mail,link';
+  meta = meta.split(',').filter(function(item) {
+    return GUEST.indexOf(item) > -1;
+  });
+  new Valine({
+    el: '#vcomments',
+    verify: false,
+    notify: false,
+    appId: '',
+    appKey: '',
+    placeholder: 'Just go go',
+    avatar: 'mm',
+    meta: meta,
+    pageSize: '10' || 10,
+    visitor: false
+  });
+  </script>
+
+     
+
+
+
+
+
+
+
+</body>
+</html>

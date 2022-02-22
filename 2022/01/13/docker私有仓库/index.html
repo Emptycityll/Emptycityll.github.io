@@ -1,0 +1,710 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head>
+  <meta charset="utf-8">
+  
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, minimal-ui">
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="Cache-Control" content="no-transform" />
+  <meta http-equiv="Cache-Control" content="no-siteapp" />
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="format-detection" content="telephone=no,email=no,adress=no">
+  <!-- Color theme for statusbar -->
+  <meta name="theme-color" content="#000000" />
+  <!-- 强制页面在当前窗口以独立页面显示,防止别人在框架里调用页面 -->
+  <meta http-equiv="window-target" content="_top" />
+  
+  
+  <title>docker私有仓库 | Hexo</title>
+  <meta name="description" content="Docker私有仓库1 概述官方的Docker hub（hub.docker.com）用于管理公共镜像，我们可以在上面找到我们想要的镜像，也可以把我们自己的镜像推送上去。但是，有时候，我们的使用场景（网速、安全）需要我们搭建私有的镜像仓库用于管理我们自己的镜像。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="docker私有仓库">
+<meta property="og:url" content="http://example.com/2022/01/13/docker%E7%A7%81%E6%9C%89%E4%BB%93%E5%BA%93/index.html">
+<meta property="og:site_name" content="����ɭ">
+<meta property="og:description" content="Docker私有仓库1 概述官方的Docker hub（hub.docker.com）用于管理公共镜像，我们可以在上面找到我们想要的镜像，也可以把我们自己的镜像推送上去。但是，有时候，我们的使用场景（网速、安全）需要我们搭建私有的镜像仓库用于管理我们自己的镜像。">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2022-01-13T15:41:30.000Z">
+<meta property="article:modified_time" content="2022-02-22T10:15:47.107Z">
+<meta property="article:author" content="yun">
+<meta property="article:tag" content="�޽�">
+<meta name="twitter:card" content="summary">
+  <!-- Canonical links -->
+  <link rel="canonical" href="http://example.com/2022/01/13/docker%E7%A7%81%E6%9C%89%E4%BB%93%E5%BA%93/index.html">
+  
+    <link rel="alternate" href="/atom.xml" title="����ɭ" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png" type="image/x-icon">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+  
+  
+  
+<meta name="generator" content="Hexo 6.0.0"></head>
+
+
+<body class="main-center" itemscope itemtype="http://schema.org/WebPage">
+  <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+  <div class="slimContent">
+    <div class="navbar-header">
+      
+      
+      <div class="profile-block text-center">
+        <a id="avatar" href="https://github.com/cofess" target="_blank">
+          <img class="img-circle img-rotate" src="/images/avatar.jpg" width="200" height="200">
+        </a>
+        <h2 id="name" class="hidden-xs hidden-sm">云先森</h2>
+        <h3 id="title" class="hidden-xs hidden-sm hidden-md">一个酷酷的学生</h3>
+        <small id="location" class="text-muted hidden-xs hidden-sm"><i class="icon icon-map-marker"></i> Huhehaote, China</small>
+      </div>
+      
+      <div class="search" id="search-form-wrap">
+
+    <form class="search-form sidebar-form">
+        <div class="input-group">
+            <input type="text" class="search-form-input form-control" placeholder="搜索" />
+            <span class="input-group-btn">
+                <button type="submit" class="search-form-submit btn btn-flat" onclick="return false;"><i class="icon icon-search"></i></button>
+            </span>
+        </div>
+    </form>
+    <div class="ins-search">
+  <div class="ins-search-mask"></div>
+  <div class="ins-search-container">
+    <div class="ins-input-wrapper">
+      <input type="text" class="ins-search-input" placeholder="想要查找什么..." x-webkit-speech />
+      <button type="button" class="close ins-close ins-selectable" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+    </div>
+    <div class="ins-section-wrapper">
+      <div class="ins-section-container"></div>
+    </div>
+  </div>
+</div>
+
+
+</div>
+      <button class="navbar-toggle collapsed" type="button" data-toggle="collapse" data-target="#main-navbar" aria-controls="main-navbar" aria-expanded="false">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+    </div>
+    <nav id="main-navbar" class="collapse navbar-collapse" itemscope itemtype="http://schema.org/SiteNavigationElement" role="navigation">
+      <ul class="nav navbar-nav main-nav ">
+        
+        
+        <li class="menu-item menu-item-home">
+          <a href="/.">
+            
+            <i class="icon fa-dashboard"></i>
+            
+            <span class="menu-title">首页</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives">
+            
+            <i class="icon fa-delicious"></i>
+            
+            <span class="menu-title">归档</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories">
+            
+            <i class="icon fa-folder"></i>
+            
+            <span class="menu-title">分类</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags">
+            
+            <i class="icon fa-tags"></i>
+            
+            <span class="menu-title">标签</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-repository">
+          <a href="/repository">
+            
+            <i class="icon fa-code"></i>
+            
+            <span class="menu-title">项目</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-books">
+          <a href="/books">
+            
+            <i class="icon fa-leanpub"></i>
+            
+            <span class="menu-title">书单</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-links">
+          <a href="/links">
+            
+            <i class="icon fa-gg"></i>
+            
+            <span class="menu-title">友链</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about">
+            
+            <i class="icon fa-coffee"></i>
+            
+            <span class="menu-title">关于</span>
+          </a>
+        </li>
+        
+      </ul>
+      
+	
+    <ul class="social-links">
+    	
+        <li><a href="https://github.com/cofess" target="_blank" title="Github" data-toggle=tooltip data-placement=top><i class="icon icon-github"></i></a></li>
+        
+        <li><a href="http://weibo.com/cofess" target="_blank" title="Weibo" data-toggle=tooltip data-placement=top><i class="icon icon-weibo"></i></a></li>
+        
+        <li><a href="https://twitter.com/iwebued" target="_blank" title="Twitter" data-toggle=tooltip data-placement=top><i class="icon icon-twitter"></i></a></li>
+        
+        <li><a href="https://www.behance.net/cofess" target="_blank" title="Behance" data-toggle=tooltip data-placement=top><i class="icon icon-behance"></i></a></li>
+        
+        <li><a href="/atom.xml" target="_blank" title="Rss" data-toggle=tooltip data-placement=top><i class="icon icon-rss"></i></a></li>
+        
+    </ul>
+
+    </nav>
+  </div>
+</header>
+
+  
+    <aside class="sidebar" itemscope itemtype="http://schema.org/WPSideBar">
+  <div class="slimContent">
+    
+      <div class="widget">
+    <h3 class="widget-title">公告</h3>
+    <div class="widget-body">
+        <div id="board">
+            <div class="content">
+                <p>欢迎交流与分享经验!</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+    
+      
+
+    
+      
+
+    
+      
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">归档</h3>
+    <div class="widget-body">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/01/">一月 2022</a><span class="archive-list-count">9</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">最新文章</h3>
+    <div class="widget-body">
+      <ul class="recent-post-list list-unstyled no-thumbnail">
+        
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                
+              </p>
+              <p class="item-title">
+                <a href="/2022/01/21/Keepalived-%E5%8F%8C%E6%9C%BA%E8%A2%AB%E7%83%AD/" class="title">Keepalived-双机被热</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2022-01-21T12:38:38.000Z" itemprop="datePublished">2022-01-21</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                
+              </p>
+              <p class="item-title">
+                <a href="/2022/01/20/mariadb-galera-cluster/" class="title">mariadb-galera-cluster</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2022-01-20T14:09:27.000Z" itemprop="datePublished">2022-01-20</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                
+              </p>
+              <p class="item-title">
+                <a href="/2022/01/19/YAML%E8%AF%AD%E6%B3%95%E5%AD%A6%E4%B9%A0/" class="title">YAML语法学习</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2022-01-19T02:00:58.000Z" itemprop="datePublished">2022-01-19</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                
+              </p>
+              <p class="item-title">
+                <a href="/2022/01/18/gluster-%E5%AD%98%E5%82%A8%E9%9B%86%E7%BE%A4/" class="title">gluster-存储集群</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2022-01-18T12:53:29.000Z" itemprop="datePublished">2022-01-18</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                
+              </p>
+              <p class="item-title">
+                <a href="/2022/01/17/ceph-%E9%83%A8%E7%BD%B2%E6%89%8B%E5%86%8C/" class="title">ceph-部署</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2022-01-17T02:42:50.000Z" itemprop="datePublished">2022-01-17</time>
+              </p>
+            </div>
+          </li>
+          
+      </ul>
+    </div>
+  </div>
+  
+
+    
+  </div>
+</aside>
+
+  
+  
+<main class="main" role="main">
+  <div class="content">
+  <article id="post-docker私有仓库" class="article article-type-post" itemscope itemtype="http://schema.org/BlogPosting">
+    
+    <div class="article-header">
+      
+        
+  
+    <h1 class="article-title" itemprop="name">
+      docker私有仓库
+    </h1>
+  
+
+      
+      <div class="article-meta">
+        <span class="article-date">
+    <i class="icon icon-calendar-check"></i>
+	<a href="/2022/01/13/docker%E7%A7%81%E6%9C%89%E4%BB%93%E5%BA%93/" class="article-date">
+	  <time datetime="2022-01-13T15:41:30.000Z" itemprop="datePublished">2022-01-13</time>
+	</a>
+</span>
+        
+        
+
+        
+
+        <span class="post-comment"><i class="icon icon-comment"></i> <a href="/2022/01/13/docker%E7%A7%81%E6%9C%89%E4%BB%93%E5%BA%93/#comments" class="article-comment-link">评论</a></span>
+        
+      </div>
+    </div>
+    <div class="article-entry marked-body" itemprop="articleBody">
+      
+        <h2 id="Docker私有仓库"><a href="#Docker私有仓库" class="headerlink" title="Docker私有仓库"></a>Docker私有仓库</h2><h3 id="1-概述"><a href="#1-概述" class="headerlink" title="1 概述"></a>1 概述</h3><p>官方的Docker hub（hub.docker.com）用于管理公共镜像，我们可以在上面找到我们想要的镜像，也可以把我们自己的镜像推送上去。但是，有时候，我们的使用场景（网速、安全）需要我们搭建私有的镜像仓库用于管理我们自己的镜像。<span id="more"></span></p>
+<p>Docker hub上提供了registry的镜像，搭建我们自己的私有仓库服务。</p>
+<p>Docker Registry由三个部分组成：index，registry，registry client。</p>
+<ul>
+<li>Index认为是负责登录、负责认证、负责存储镜像信息和负责对外显示的外部实现</li>
+<li>registry则是负责存储镜像的内部实现</li>
+<li>Registry Client则是docker客户端。</li>
+</ul>
+<h3 id="2-搭建私有仓库-Registry"><a href="#2-搭建私有仓库-Registry" class="headerlink" title="2 搭建私有仓库-Registry"></a>2 搭建私有仓库-Registry</h3><h4 id="2-1-实验环境准备"><a href="#2-1-实验环境准备" class="headerlink" title="2.1 实验环境准备"></a>2.1 实验环境准备</h4><table>
+<thead>
+<tr>
+<th align="center">主机名</th>
+<th align="center">IP</th>
+<th align="center">角色</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">master</td>
+<td align="center">192.168.200.10</td>
+<td align="center">docker私有仓库服务器</td>
+</tr>
+<tr>
+<td align="center">node1</td>
+<td align="center">192.168.200.11</td>
+<td align="center">客户端（需要安装docker-ce，上传镜像）</td>
+</tr>
+<tr>
+<td align="center">node2</td>
+<td align="center">192.168.200.12</td>
+<td align="center">客户端（需要安装Docker-ce，下载镜像）</td>
+</tr>
+</tbody></table>
+<p>1、master主机</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"><span class="comment">#配置网络</span></span></span><br><span class="line">[root@localhost ~]# vi /etc/sysconfig/network-scripts/ifcfg-ens32</span><br><span class="line">TYPE=&quot;Ethernet&quot;</span><br><span class="line">BOOTPROTO=&quot;none&quot;</span><br><span class="line">NAME=&quot;ens32&quot;</span><br><span class="line">DEVICE=&quot;ens32&quot;</span><br><span class="line">ONBOOT=&quot;yes&quot;</span><br><span class="line">IPADDR=&quot;192.168.200.10&quot;</span><br><span class="line">PREFIX=&quot;24&quot;</span><br><span class="line">GATEWAY=&quot;192.168.200.2&quot;</span><br><span class="line">DNS1=&quot;114.114.114.114&quot;</span><br><span class="line">[root@centos ~]# systemctl restart network</span><br><span class="line">[root@localhost ~]# ip a</span><br><span class="line">[root@localhost ~]# ping www.baidu.com</span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment">#配置主机名</span></span></span><br><span class="line">[root@localhost ~]# hostnamectl set-hostname master</span><br><span class="line">[root@localhost ~]# bash</span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment">#关闭防火墙和selinux</span></span></span><br><span class="line">[root@master ~]# systemctl stop firewalld &amp;&amp; systemctl disable firewalld</span><br><span class="line">[root@master ~]# sed -i &#x27;s/SELINUX=enforcing/SELINUX=disabled/g&#x27; /etc/selinux/config</span><br><span class="line">[root@master ~]# setenforce 0</span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment">#开启路由转发</span></span></span><br><span class="line">[root@master ~]# cat &lt;&lt; EOF &gt;&gt; /etc/sysctl.conf</span><br><span class="line">net.ipv4.ip_forward = 1</span><br><span class="line">EOF</span><br><span class="line">[root@master ~]# sysctl -p</span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment">#安装Docker-ce，修改加速器</span></span></span><br><span class="line">[root@master ~]# curl -fsSL https://get.docker.com | bash -s docker --mirror Aliyun</span><br><span class="line">[root@master ~]# docker --version</span><br><span class="line">[root@master ~]# systemctl enable docker &amp;&amp; systemctl start docker</span><br><span class="line"></span><br><span class="line">[root@master ~]# tee /etc/docker/daemon.json &lt;&lt;-&#x27;EOF&#x27;</span><br><span class="line">&#123;</span><br><span class="line">&quot;registry-mirrors&quot;: [&quot;https://aq63ygn3.mirror.aliyuncs.com&quot;]</span><br><span class="line">&#125;</span><br><span class="line">EOF</span><br><span class="line">[root@master ~]# systemctl daemon-reload &amp;&amp; systemctl restart docker</span><br></pre></td></tr></table></figure>
+
+<p>2、node1、node2主机</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">操作同master</span><br></pre></td></tr></table></figure>
+
+<h4 id="2-2-搭建私有仓库（docker-registry）"><a href="#2-2-搭建私有仓库（docker-registry）" class="headerlink" title="2.2 搭建私有仓库（docker-registry）"></a>2.2 搭建私有仓库（docker-registry）</h4><p>1、下载私有仓库注册服务器的镜像</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">[root@master ~]# docker pull registry</span><br><span class="line">[root@master ~]# docker images</span><br><span class="line">REPOSITORY          TAG                 IMAGE ID            CREATED             SIZE</span><br><span class="line">registry            2              708bc6af7e5e        8 weeks ago         25.8MB</span><br></pre></td></tr></table></figure>
+
+<p>2、创建注册服务器容器</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">[root@master ~]# mkdir -p /usr/local/work/registry</span><br><span class="line">[root@master ~]# docker run -d --restart=always --privileged=true --name registry -p 5000:5000 -v /usr/local/work/registry/:/var/lib/registry registry</span><br><span class="line">[root@master ~]#  docker ps</span><br><span class="line">CONTAINER ID   IMAGE        COMMAND                  CREATED              STATUS              PORTS                                       NAMES</span><br><span class="line">1709b2d51ea5   registry:2   &quot;/entrypoint.sh /etc…&quot;   About a minute ago   Up About a minute   0.0.0.0:5000-&gt;5000/tcp, :::5000-&gt;5000/tcp   registry</span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment">#–restart=always 此模式容器会跟 docker daemon会随着docker服务的重启而自动恢复</span></span></span><br></pre></td></tr></table></figure>
+
+<p>3、访问私有仓库，由于刚启动还没有提交镜像，所以这里显示为空。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[root@master ~]# curl -X GET http://192.168.200.10:5000/v2/_catalog  </span><br><span class="line">&#123;&quot;repositories&quot;:[]&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="2-3-客户端推送测试（node1）"><a href="#2-3-客户端推送测试（node1）" class="headerlink" title="2.3 客户端推送测试（node1）"></a>2.3 客户端推送测试（node1）</h4><p>1、修改客户端docker的配置文件/etc/docker/daemon.json，支持http访问</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">[root@node1 ~]# vim  /etc/docker/daemon.json</span><br><span class="line">&#123;</span><br><span class="line">  &quot;registry-mirrors&quot;: [</span><br><span class="line">    &quot;http://hub-mirror.c.163.com&quot;,</span><br><span class="line">    &quot;https://eqcxmbvw.mirror.aliyuncs.com&quot;,</span><br><span class="line">    &quot;https://docker.mirrors.ustc.edu.cn&quot;</span><br><span class="line">  ],</span><br><span class="line">  &quot;insecure-registries&quot;: [&quot;192.168.200.10:5000&quot;]</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">[root@docker-app ~]# systemctl daemon-reload &amp;&amp; systemctl restart docker</span><br></pre></td></tr></table></figure>
+
+<p>2、拉取测试镜像</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[root@node1 ~]# docker pull busybox</span><br><span class="line">[root@node1 ~]# docker images</span><br></pre></td></tr></table></figure>
+
+<p>3、给镜像busybox添加一个带有私有仓库ip的tag，这样后面才能成功推送到私有仓库：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">[root@node1 ~]# docker tag busybox:latest 192.168.200.10:5000/busybox:v1</span><br><span class="line">[root@node1 ~]# docker images</span><br><span class="line">REPOSITORY                  TAG                 IMAGE ID            CREATED             SIZE</span><br><span class="line">busybox                     latest              83aa35aa1c79        11 days ago         1.22MB</span><br><span class="line">192.168.8.20:5000/busybox   v1                  83aa35aa1c79        11 days ago         1.22MB</span><br></pre></td></tr></table></figure>
+
+<p>4、向私有仓库推送镜像</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@node1 ~]# docker push 192.168.200.10:5000/busybox:v1The push refers to repository [192.168.200.10:5000/busybox]5b8c72934dfc: Pushed v1: digest: sha256:dca71257cd2e72840a21f0323234bb2e33fea6d949fa0f21c5102146f583486b size: 527[root@node1 ~]# curl -X GET http://192.168.200.10:5000/v2/_catalog &#123;&quot;repositories&quot;:[&quot;busybox&quot;]&#125;root@node1 ~]#  docker tag busybox:latest 192.168.200.10:5000/busybox:v2[root@node1 ~]# docker push 192.168.200.10:5000/busybox:v2[root@node1 ~]# curl -X GET http://192.168.200.10:5000/v2/busybox/tags/list&#123;&quot;name&quot;:&quot;busybox&quot;,&quot;tags&quot;:[&quot;v1&quot;,&quot;v2&quot;]&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="8-2-4-客户端拉取测试（node2）"><a href="#8-2-4-客户端拉取测试（node2）" class="headerlink" title="8.2.4 客户端拉取测试（node2）"></a>8.2.4 客户端拉取测试（node2）</h4><p>1、修改客户端docker的配置文件/etc/docker/daemon.json，支持http访问</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@node2 ~]# vim  /etc/docker/daemon.json&#123;  &quot;registry-mirrors&quot;: [    &quot;http://hub-mirror.c.163.com&quot;,    &quot;https://eqcxmbvw.mirror.aliyuncs.com&quot;,    &quot;https://docker.mirrors.ustc.edu.cn&quot;  ],  &quot;insecure-registries&quot;: [&quot;192.168.200.10:5000&quot;]&#125;[root@node2 ~]# systemctl daemon-reload &amp;&amp; systemctl restart docker</span><br></pre></td></tr></table></figure>
+
+<p>2、从私有仓库镜像拉取镜像</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash">删除本地镜像[root@node2 ~]<span class="comment"># docker rmi `docker images -q`[root@node2 ~]# docker images#从私有仓库拉取镜像/运行镜像[root@node2 ~]# docker pull 192.168.200.10:5000/busybox:v1v1: Pulling from busyboxDigest: sha256:dca71257cd2e72840a21f0323234bb2e33fea6d949fa0f21c5102146f583486bStatus: Downloaded newer image for 192.168.200.10:5000/busybox:v1192.168.200.10:5000/busybox:v1[root@node2 ~]# docker images</span></span></span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="3-私有仓库Harbor"><a href="#3-私有仓库Harbor" class="headerlink" title="3 私有仓库Harbor"></a>3 私有仓库Harbor</h3><h4 id="3-1-概述"><a href="#3-1-概述" class="headerlink" title="3.1 概述"></a>3.1 概述</h4><p>1、Harbor 仓库介绍</p>
+<blockquote>
+<p>Docker容器应用的开发和运行离不开可靠的镜像管理，虽然Docker官方也提供了公共的镜像仓库，但是从安全和效率等方面考虑，部署私有环境内的Registry也是非常必要的。Harbor是由VMware公司开源的企业级的Docker Registry管理项目，它包括权限管理(RBAC)、LDAP、日志审核、管理界面、自我注册、镜像复制和中文支持等功能。</p>
+</blockquote>
+<h4 id="3-2-master安装harbor"><a href="#3-2-master安装harbor" class="headerlink" title="3.2 master安装harbor"></a>3.2 master安装harbor</h4><p>1、安装docker-compose</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"><span class="comment">#方法1：在线安装[root@master ~]# curl -L https://get.daocloud.io/docker/compose/releases/download/1.25.4/docker-compose-`uname -s`-`uname -m` &gt; /usr/local/bin/docker-compose[root@master ~]# chmod +x /usr/local/bin/docker-compose[root@master ~]# ln -s /usr/local/bin/docker-compose /usr/bin/docker-compose[root@master ~]# docker-compose  --versiondocker-compose version 1.25.4, build 8d51620a##方法2：离线安装##下载docker-compose离线包##上传docker-compose到/usr/local/bin/，x</span></span></span><br></pre></td></tr></table></figure>
+
+<p>2、安装harbor</p>
+<p>（1）上传harbor打包文件，解包</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@master ~]# tar  zxvf harbor-offline-installer-v2.3.1.tgz -C /usr/local/[root@master ~]# ls /usr/local/harbor/common.sh  harbor.v2.3.1.tar.gz  harbor.yml.tmpl  install.sh  LICENSE  prepare</span><br></pre></td></tr></table></figure>
+
+<p>（2）导入docker镜像</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@master ~]# cd /usr/local/harbor[root@master harbor]# docker image load -i harbor.v2.3.1.tar.gz [root@master harbor]# docker images        #导入很多镜像</span><br></pre></td></tr></table></figure>
+
+<p>（3）修改第harbor.yml配置文件</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@master harbor]# cp harbor.yml.tmpl harbor.yml[root@master harbor]# vi harbor.yml# Configuration file of Harbor# The IP address or hostname to access admin UI and registry service.# DO NOT use localhost or 127.0.0.1, because Harbor needs to be accessed by external clients.hostname: 192.168.200.10        #访问IP# http related confighttp:  # port for http, default is 80. If https enabled, this port will redirect to https port  port: 80# https related config#https:        #注释掉https部分  # https port for harbor, default is 443  #port: 443  # The path of cert and key files for nginx  #certificate: /your/certificate/path  #private_key: /your/private/key/path# # Uncomment following will enable tls communication between all harbor components# internal_tls:#   # set enabled to true means internal tls is enabled#   enabled: true#   # put your cert and key files on dir#   dir: /etc/harbor/tls/internal# Uncomment external_url if you want to enable external proxy# And when it enabled the hostname will no longer used# external_url: https://reg.mydomain.com:8433# The initial password of Harbor admin        #登录帐号admin# It only works in first time to install harbor# Remember Change the admin password from UI after launching Harbor.harbor_admin_password: Harbor12345        #登录密码# Harbor DB configurationdatabase:  # The password for the root user of Harbor DB. Change this before any production use.  password: root123  # The maximum number of connections in the idle connection pool. If it &lt;=0, no idle connections are retained.  max_idle_conns: 100  # The maximum number of open connections to the database. If it &lt;= 0, then there is no limit on the number of open connections.  # Note: the default number of connections is 1024 for postgres of harbor.  max_open_conns: 900# The default data volumedata_volume: /data……</span><br></pre></td></tr></table></figure>
+
+<p>注意：</p>
+<blockquote>
+<p>1、安装v2.x系列，必须先导入镜像，再拷贝harbor.yml.tmpl模板，顺序不能乱，并且直接使用harbor.yml.tmpl模板作为配置文件，只能使用harbor.yml 作为配置文件。<br>2、v1.x系列安装没有导入docker镜像这一步，直接修改配置文件harbor.cfg 即可，后面操作一样。</p>
+</blockquote>
+<p>（4）检查harbor</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@master harbor]# ./prepare</span><br></pre></td></tr></table></figure>
+
+<p>（5）安装harbor</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@master harbor]# ./install.sh[Step 0]: checking if docker is installed ...Note: docker version: 20.10.8……Creating nginx             ... doneCreating harbor-jobservice ... done✔ ----Harbor has been installed and started successfully.----</span><br></pre></td></tr></table></figure>
+
+<p>（6）查看服务器运行的容器</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@master harbor]# docker ps</span><br></pre></td></tr></table></figure>
+
+<p>（7）访问harbor</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http://192.168.200.10/        ##建议chrome浏览器</span><br></pre></td></tr></table></figure>
+
+<p>（8）harbor管理命令</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@master ~]# cd /usr/local/harbor[root@master ~]# docker-compose up -d # 后台启动，如果容器不存在根据镜像自动创建[root@master ~]# docker-compose down -v # 停止容器并删除容器[root@master ~]# docker-compose start # 启动容器，容器不存在就无法启动，不会自动创建镜像[root@master ~]# docker-compose stop # 停止容器</span><br></pre></td></tr></table></figure>
+
+<p>（9）harbor创建项目</p>
+<h4 id="3-3-客户端node1使用仓库"><a href="#3-3-客户端node1使用仓库" class="headerlink" title="3.3 客户端node1使用仓库"></a>3.3 客户端node1使用仓库</h4><p>1、修改/etc/docker/daemon.json文件和 /usr/lib/systemd/system/docker.service文件</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@node1 ~]# vim /etc/docker/daemon.json &#123;  &quot;registry-mirrors&quot;: [    &quot;http://hub-mirror.c.163.com&quot;,    &quot;https://eqcxmbvw.mirror.aliyuncs.com&quot;,    &quot;https://docker.mirrors.ustc.edu.cn&quot;  ]&#125;##也可以增加 &quot;insecure-registries&quot;: [&quot;192.168.200.10&quot;]，[root@node1 ~]# vi /usr/lib/systemd/system/docker.serviceExecStart=/usr/bin/dockerd -H fd://  --insecure-registry 192.168.200.10 --containerd=/run/containerd/containerd.sock        #13行[root@node1 ~]# systemctl daemon-reload &amp;&amp; systemctl restart docker</span><br></pre></td></tr></table></figure>
+
+<p>2、下载测试镜像</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@node1 ~]# docker pull busybox[root@node1 ~]# docker images</span><br></pre></td></tr></table></figure>
+
+<p>3、给镜像打标签</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@node1 ~]# docker tag busybox:latest 192.168.200.10/busybox:h1[root@node1 ~]# docker images</span><br></pre></td></tr></table></figure>
+
+<p>3、登录harbor</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@node1 ~]# docker login -u admin -p Harbor12345 192.168.200.10WARNING! Using --password via the CLI is insecure. Use --password-stdin.WARNING! Your password will be stored unencrypted in /root/.docker/config.json.Configure a credential helper to remove this warning. Seehttps://docs.docker.com/engine/reference/commandline/login/#credentials-storeLogin Succeeded</span><br></pre></td></tr></table></figure>
+
+<p>4、上传镜像到harbor仓库</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@node1 ~]# docker push 192.168.200.10/test/busybox:h1The push refers to repository [192.168.200.10/test/busybox]5b8c72934dfc: Pushed h1: digest: sha256:dca71257cd2e72840a21f0323234bb2e33fea6d949fa0f21c5102146f583486b size: 527</span><br></pre></td></tr></table></figure>
+
+<p>5、下载镜像(node2)</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@node2 ~]# docker pull 192.168.200.10/test/busybox:h1[root@node2 ~]# docker images</span><br></pre></td></tr></table></figure>
+
+
+
+
+      
+    </div>
+    <div class="article-footer">
+      <blockquote class="mt-2x">
+  <ul class="post-copyright list-unstyled">
+    
+    <li class="post-copyright-link hidden-xs">
+      <strong>本文链接：</strong>
+      <a href="http://example.com/2022/01/13/docker%E7%A7%81%E6%9C%89%E4%BB%93%E5%BA%93/" title="docker私有仓库" target="_blank" rel="external">http://example.com/2022/01/13/docker私有仓库/</a>
+    </li>
+    
+    <li class="post-copyright-license">
+      <strong>版权声明： </strong> 本博客所有文章除特别声明外，均采用 <a href="http://creativecommons.org/licenses/by/4.0/deed.zh" target="_blank" rel="external">CC BY 4.0 CN协议</a> 许可协议。转载请注明出处！
+    </li>
+  </ul>
+</blockquote>
+
+
+<div class="panel panel-default panel-badger">
+  <div class="panel-body">
+    <figure class="media">
+      <div class="media-left">
+        <a href="https://github.com/cofess" target="_blank" class="img-burn thumb-sm visible-lg">
+          <img src="/images/avatar.jpg" class="img-rounded w-full" alt="">
+        </a>
+      </div>
+      <div class="media-body">
+        <h3 class="media-heading"><a href="https://github.com/cofess" target="_blank"><span class="text-dark">云先森</span><small class="ml-1x">一个酷酷的学生</small></a></h3>
+        <div>学不死往死学。</div>
+      </div>
+    </figure>
+  </div>
+</div>
+
+
+    </div>
+  </article>
+  
+    
+  <section id="comments">
+  	
+      <div id="vcomments"></div>
+    
+  </section>
+
+
+  
+</div>
+
+  <nav class="bar bar-footer clearfix" data-stick-bottom>
+  <div class="bar-inner">
+  
+  <ul class="pager pull-left">
+    
+    <li class="prev">
+      <a href="/2022/01/16/k8s-%E5%85%A8%E9%9D%A2/" title="k8s-全面"><i class="icon icon-angle-left" aria-hidden="true"></i><span>&nbsp;&nbsp;上一篇</span></a>
+    </li>
+    
+    
+    <li class="next">
+      <a href="/2022/01/13/hello-world/" title="Hello World"><span>下一篇&nbsp;&nbsp;</span><i class="icon icon-angle-right" aria-hidden="true"></i></a>
+    </li>
+    
+    
+  </ul>
+  
+  
+  <!-- Button trigger modal -->
+  <button type="button" class="btn btn-fancy btn-donate pop-onhover bg-gradient-warning" data-toggle="modal" data-target="#donateModal"><span>赏</span></button>
+  <!-- <div class="wave-icon wave-icon-danger btn-donate" data-toggle="modal" data-target="#donateModal">
+    <div class="wave-circle"><span class="icon"><i class="icon icon-bill"></i></span></div>
+  </div> -->
+  
+  
+  <div class="bar-right">
+    
+    <div class="share-component" data-sites="weibo,qq,wechat,facebook,twitter" data-mobile-sites="weibo,qq,qzone"></div>
+    
+  </div>
+  </div>
+</nav>
+  
+<!-- Modal -->
+<div class="modal modal-center modal-small modal-xs-full fade" id="donateModal" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content donate">
+      <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+      <div class="modal-body">
+        <div class="donate-box">
+          <div class="donate-head">
+            <p>感谢您的支持，我会继续努力的!</p>
+          </div>
+          <div class="tab-content">
+            <div role="tabpanel" class="tab-pane fade active in" id="alipay">
+              <div class="donate-payimg">
+                <img src="/images/donate/alipayimg.png" alt="扫码支持" title="扫一扫" />
+              </div>
+              <p class="text-muted mv">扫码打赏，你说多少就多少</p>
+              <p class="text-grey">打开支付宝扫一扫，即可进行扫码打赏哦</p>
+            </div>
+            <div role="tabpanel" class="tab-pane fade" id="wechatpay">
+              <div class="donate-payimg">
+                <img src="/images/donate/wechatpayimg.png" alt="扫码支持" title="扫一扫" />
+              </div>
+              <p class="text-muted mv">扫码打赏，你说多少就多少</p>
+              <p class="text-grey">打开微信扫一扫，即可进行扫码打赏哦</p>
+            </div>
+          </div>
+          <div class="donate-footer">
+            <ul class="nav nav-tabs nav-justified" role="tablist">
+              <li role="presentation" class="active">
+                <a href="#alipay" id="alipay-tab" role="tab" data-toggle="tab" aria-controls="alipay" aria-expanded="true"><i class="icon icon-alipay"></i> 支付宝</a>
+              </li>
+              <li role="presentation" class="">
+                <a href="#wechatpay" role="tab" id="wechatpay-tab" data-toggle="tab" aria-controls="wechatpay" aria-expanded="false"><i class="icon icon-wepay"></i> 微信支付</a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+</main>
+
+  <footer class="footer" itemscope itemtype="http://schema.org/WPFooter">
+	
+	
+    <ul class="social-links">
+    	
+        <li><a href="https://github.com/cofess" target="_blank" title="Github" data-toggle=tooltip data-placement=top><i class="icon icon-github"></i></a></li>
+        
+        <li><a href="http://weibo.com/cofess" target="_blank" title="Weibo" data-toggle=tooltip data-placement=top><i class="icon icon-weibo"></i></a></li>
+        
+        <li><a href="https://twitter.com/iwebued" target="_blank" title="Twitter" data-toggle=tooltip data-placement=top><i class="icon icon-twitter"></i></a></li>
+        
+        <li><a href="https://www.behance.net/cofess" target="_blank" title="Behance" data-toggle=tooltip data-placement=top><i class="icon icon-behance"></i></a></li>
+        
+        <li><a href="/atom.xml" target="_blank" title="Rss" data-toggle=tooltip data-placement=top><i class="icon icon-rss"></i></a></li>
+        
+    </ul>
+
+    <div class="copyright">
+    	
+        <div class="publishby">
+        	Theme by <a href="https://github.com/cofess" target="_blank"> cofess </a>base on <a href="https://github.com/cofess/hexo-theme-pure" target="_blank">pure</a>.
+        </div>
+    </div>
+</footer>
+  <script src="//cdn.jsdelivr.net/npm/jquery@1.12.4/dist/jquery.min.js"></script>
+<script>
+window.jQuery || document.write('<script src="js/jquery.min.js"><\/script>')
+</script>
+
+<script src="/js/plugin.min.js"></script>
+
+
+<script src="/js/application.js"></script>
+
+
+    <script>
+(function (window) {
+    var INSIGHT_CONFIG = {
+        TRANSLATION: {
+            POSTS: '文章',
+            PAGES: '页面',
+            CATEGORIES: '分类',
+            TAGS: '标签',
+            UNTITLED: '(未命名)',
+        },
+        ROOT_URL: '/',
+        CONTENT_URL: '/content.json',
+    };
+    window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+})(window);
+</script>
+
+<script src="/js/insight.js"></script>
+
+
+
+
+
+
+   
+
+
+
+
+   
+    
+  <script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/valine"></script>
+  <script type="text/javascript">
+  var GUEST = ['nick', 'mail', 'link'];
+  var meta = 'nick,mail,link';
+  meta = meta.split(',').filter(function(item) {
+    return GUEST.indexOf(item) > -1;
+  });
+  new Valine({
+    el: '#vcomments',
+    verify: false,
+    notify: false,
+    appId: '',
+    appKey: '',
+    placeholder: 'Just go go',
+    avatar: 'mm',
+    meta: meta,
+    pageSize: '10' || 10,
+    visitor: false
+  });
+  </script>
+
+     
+
+
+
+
+
+
+
+</body>
+</html>

@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head>
+  <meta charset="utf-8">
+  
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, minimal-ui">
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="Cache-Control" content="no-transform" />
+  <meta http-equiv="Cache-Control" content="no-siteapp" />
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="format-detection" content="telephone=no,email=no,adress=no">
+  <!-- Color theme for statusbar -->
+  <meta name="theme-color" content="#000000" />
+  <!-- 强制页面在当前窗口以独立页面显示,防止别人在框架里调用页面 -->
+  <meta http-equiv="window-target" content="_top" />
+  
+  
+  <title>mariadb-galera-cluster | Hexo</title>
+  <meta name="description" content="2.2 MariaDB Galera ClusterGalera Cluster是集成了Galera插件的MySQL集群，是一种新型的，数据不共享的，高度冗余的高可用方案，目前Galera Cluster有两个版本，分别是Percona Xtradb Cluster和MariaDB Cluster，Galera本身具有多主特性，即采用Multi-master的集群架构，是一个即稳健，又在数据一致性">
+<meta property="og:type" content="article">
+<meta property="og:title" content="mariadb-galera-cluster">
+<meta property="og:url" content="http://example.com/2022/01/20/mariadb-galera-cluster/index.html">
+<meta property="og:site_name" content="����ɭ">
+<meta property="og:description" content="2.2 MariaDB Galera ClusterGalera Cluster是集成了Galera插件的MySQL集群，是一种新型的，数据不共享的，高度冗余的高可用方案，目前Galera Cluster有两个版本，分别是Percona Xtradb Cluster和MariaDB Cluster，Galera本身具有多主特性，即采用Multi-master的集群架构，是一个即稳健，又在数据一致性">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2022-01-20T14:09:27.000Z">
+<meta property="article:modified_time" content="2022-01-20T14:13:36.437Z">
+<meta property="article:author" content="yun">
+<meta property="article:tag" content="�޽�">
+<meta name="twitter:card" content="summary">
+  <!-- Canonical links -->
+  <link rel="canonical" href="http://example.com/2022/01/20/mariadb-galera-cluster/index.html">
+  
+    <link rel="alternate" href="/atom.xml" title="����ɭ" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png" type="image/x-icon">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+  
+  
+  
+<meta name="generator" content="Hexo 6.0.0"></head>
+
+
+<body class="main-center" itemscope itemtype="http://schema.org/WebPage">
+  <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+  <div class="slimContent">
+    <div class="navbar-header">
+      
+      
+      <div class="profile-block text-center">
+        <a id="avatar" href="https://github.com/cofess" target="_blank">
+          <img class="img-circle img-rotate" src="/images/avatar.jpg" width="200" height="200">
+        </a>
+        <h2 id="name" class="hidden-xs hidden-sm">云先森</h2>
+        <h3 id="title" class="hidden-xs hidden-sm hidden-md">一个酷酷的学生</h3>
+        <small id="location" class="text-muted hidden-xs hidden-sm"><i class="icon icon-map-marker"></i> Huhehaote, China</small>
+      </div>
+      
+      <div class="search" id="search-form-wrap">
+
+    <form class="search-form sidebar-form">
+        <div class="input-group">
+            <input type="text" class="search-form-input form-control" placeholder="搜索" />
+            <span class="input-group-btn">
+                <button type="submit" class="search-form-submit btn btn-flat" onclick="return false;"><i class="icon icon-search"></i></button>
+            </span>
+        </div>
+    </form>
+    <div class="ins-search">
+  <div class="ins-search-mask"></div>
+  <div class="ins-search-container">
+    <div class="ins-input-wrapper">
+      <input type="text" class="ins-search-input" placeholder="想要查找什么..." x-webkit-speech />
+      <button type="button" class="close ins-close ins-selectable" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+    </div>
+    <div class="ins-section-wrapper">
+      <div class="ins-section-container"></div>
+    </div>
+  </div>
+</div>
+
+
+</div>
+      <button class="navbar-toggle collapsed" type="button" data-toggle="collapse" data-target="#main-navbar" aria-controls="main-navbar" aria-expanded="false">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+    </div>
+    <nav id="main-navbar" class="collapse navbar-collapse" itemscope itemtype="http://schema.org/SiteNavigationElement" role="navigation">
+      <ul class="nav navbar-nav main-nav ">
+        
+        
+        <li class="menu-item menu-item-home">
+          <a href="/.">
+            
+            <i class="icon fa-dashboard"></i>
+            
+            <span class="menu-title">首页</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives">
+            
+            <i class="icon fa-delicious"></i>
+            
+            <span class="menu-title">归档</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories">
+            
+            <i class="icon fa-folder"></i>
+            
+            <span class="menu-title">分类</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags">
+            
+            <i class="icon fa-tags"></i>
+            
+            <span class="menu-title">标签</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-repository">
+          <a href="/repository">
+            
+            <i class="icon fa-code"></i>
+            
+            <span class="menu-title">项目</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-books">
+          <a href="/books">
+            
+            <i class="icon fa-leanpub"></i>
+            
+            <span class="menu-title">书单</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-links">
+          <a href="/links">
+            
+            <i class="icon fa-gg"></i>
+            
+            <span class="menu-title">友链</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about">
+            
+            <i class="icon fa-coffee"></i>
+            
+            <span class="menu-title">关于</span>
+          </a>
+        </li>
+        
+      </ul>
+      
+	
+    <ul class="social-links">
+    	
+        <li><a href="https://github.com/cofess" target="_blank" title="Github" data-toggle=tooltip data-placement=top><i class="icon icon-github"></i></a></li>
+        
+        <li><a href="http://weibo.com/cofess" target="_blank" title="Weibo" data-toggle=tooltip data-placement=top><i class="icon icon-weibo"></i></a></li>
+        
+        <li><a href="https://twitter.com/iwebued" target="_blank" title="Twitter" data-toggle=tooltip data-placement=top><i class="icon icon-twitter"></i></a></li>
+        
+        <li><a href="https://www.behance.net/cofess" target="_blank" title="Behance" data-toggle=tooltip data-placement=top><i class="icon icon-behance"></i></a></li>
+        
+        <li><a href="/atom.xml" target="_blank" title="Rss" data-toggle=tooltip data-placement=top><i class="icon icon-rss"></i></a></li>
+        
+    </ul>
+
+    </nav>
+  </div>
+</header>
+
+  
+    <aside class="sidebar" itemscope itemtype="http://schema.org/WPSideBar">
+  <div class="slimContent">
+    
+      <div class="widget">
+    <h3 class="widget-title">公告</h3>
+    <div class="widget-body">
+        <div id="board">
+            <div class="content">
+                <p>欢迎交流与分享经验!</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+    
+      
+
+    
+      
+
+    
+      
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">归档</h3>
+    <div class="widget-body">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/01/">一月 2022</a><span class="archive-list-count">9</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">最新文章</h3>
+    <div class="widget-body">
+      <ul class="recent-post-list list-unstyled no-thumbnail">
+        
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                
+              </p>
+              <p class="item-title">
+                <a href="/2022/01/21/Keepalived-%E5%8F%8C%E6%9C%BA%E8%A2%AB%E7%83%AD/" class="title">Keepalived-双机被热</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2022-01-21T12:38:38.000Z" itemprop="datePublished">2022-01-21</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                
+              </p>
+              <p class="item-title">
+                <a href="/2022/01/20/mariadb-galera-cluster/" class="title">mariadb-galera-cluster</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2022-01-20T14:09:27.000Z" itemprop="datePublished">2022-01-20</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                
+              </p>
+              <p class="item-title">
+                <a href="/2022/01/19/YAML%E8%AF%AD%E6%B3%95%E5%AD%A6%E4%B9%A0/" class="title">YAML语法学习</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2022-01-19T02:00:58.000Z" itemprop="datePublished">2022-01-19</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                
+              </p>
+              <p class="item-title">
+                <a href="/2022/01/18/gluster-%E5%AD%98%E5%82%A8%E9%9B%86%E7%BE%A4/" class="title">gluster-存储集群</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2022-01-18T12:53:29.000Z" itemprop="datePublished">2022-01-18</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                
+              </p>
+              <p class="item-title">
+                <a href="/2022/01/17/ceph-%E9%83%A8%E7%BD%B2%E6%89%8B%E5%86%8C/" class="title">ceph-部署</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2022-01-17T02:42:50.000Z" itemprop="datePublished">2022-01-17</time>
+              </p>
+            </div>
+          </li>
+          
+      </ul>
+    </div>
+  </div>
+  
+
+    
+  </div>
+</aside>
+
+  
+  
+<main class="main" role="main">
+  <div class="content">
+  <article id="post-mariadb-galera-cluster" class="article article-type-post" itemscope itemtype="http://schema.org/BlogPosting">
+    
+    <div class="article-header">
+      
+        
+  
+    <h1 class="article-title" itemprop="name">
+      mariadb-galera-cluster
+    </h1>
+  
+
+      
+      <div class="article-meta">
+        <span class="article-date">
+    <i class="icon icon-calendar-check"></i>
+	<a href="/2022/01/20/mariadb-galera-cluster/" class="article-date">
+	  <time datetime="2022-01-20T14:09:27.000Z" itemprop="datePublished">2022-01-20</time>
+	</a>
+</span>
+        
+        
+
+        
+
+        <span class="post-comment"><i class="icon icon-comment"></i> <a href="/2022/01/20/mariadb-galera-cluster/#comments" class="article-comment-link">评论</a></span>
+        
+      </div>
+    </div>
+    <div class="article-entry marked-body" itemprop="articleBody">
+      
+        <h1 id="2-2-MariaDB-Galera-Cluster"><a href="#2-2-MariaDB-Galera-Cluster" class="headerlink" title="2.2 MariaDB Galera Cluster"></a>2.2 MariaDB Galera Cluster</h1><p>Galera Cluster是集成了Galera插件的MySQL集群，是一种新型的，数据不共享的，高度冗余的高可用方案，目前Galera Cluster有两个版本，分别是Percona Xtradb Cluster和MariaDB Cluster，Galera本身具有多主特性，即采用Multi-master的集群架构，是一个即稳健，又在数据一致性、完整性及高性能方面有出色表现的高可用解决方案</p>
+<span id="more"></span>
+
+<h4 id="1、实验环境"><a href="#1、实验环境" class="headerlink" title="1、实验环境"></a>1、实验环境</h4><table>
+<thead>
+<tr>
+<th>IP地址</th>
+<th>主机名</th>
+<th>节点角色</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>192.168.100.11</td>
+<td>node1</td>
+<td>数据库节点</td>
+</tr>
+<tr>
+<td>192.168.100.12</td>
+<td>node2</td>
+<td>数据库节点</td>
+</tr>
+<tr>
+<td>192.168.100.13</td>
+<td>node3</td>
+<td>数据库节点</td>
+</tr>
+</tbody></table>
+<h4 id="2、实验主机基础配置（node1、node2、node3台都做）"><a href="#2、实验主机基础配置（node1、node2、node3台都做）" class="headerlink" title="2、实验主机基础配置（node1、node2、node3台都做）"></a>2、实验主机基础配置（node1、node2、node3台都做）</h4><p>①关闭防火墙和selinxu</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">[root@node1 ~]# systemctl disable --now firewalld</span><br><span class="line">[root@node1 ~]# sed -i &#x27;s/^SELINUX=enforcing$/SELINUX=disabled/&#x27; /etc/selinux/config &amp;&amp; setenforce 0</span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment">#node2、node3相同操作</span></span></span><br></pre></td></tr></table></figure>
+
+<p>②配置主机名解析</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">[root@node1 ~]# cat &gt;&gt;/etc/hosts &lt;&lt;EOF</span><br><span class="line">192.168.200.11 node1</span><br><span class="line">192.168.200.12 node2</span><br><span class="line">192.168.200.13 node3</span><br><span class="line">EOF</span><br><span class="line">[root@node1 ~]# cat /etc/hosts</span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment">#ssh免密登录</span></span></span><br><span class="line">[root@node1 ~]# ssh-keygen   //一路回车</span><br><span class="line">[root@node1 ~]# ssh-copy-id node2  //yes 000000</span><br><span class="line">[root@node1 ~]# ssh-copy-id node3</span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment">#node1往node2、node3加密拷贝</span></span></span><br><span class="line">[root@node1 ~]# scp /etc/hosts root@node2:/etc</span><br><span class="line">[root@node1 ~]# scp /etc/hosts root@node3:/etc</span><br></pre></td></tr></table></figure>
+
+<p>③安装mariadb</p>
+<blockquote>
+<p>参考文档</p>
+<p><a target="_blank" rel="noopener" href="https://mariadb.com/kb/en/yum/#installing-mariadb-galera-cluster-with-yum">https://mariadb.com/kb/en/yum/#installing-mariadb-galera-cluster-with-yum</a></p>
+</blockquote>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">##配置yum仓库</span></span><br><span class="line">[<span class="type">root</span>@<span class="type">node1</span> ~]<span class="comment"># cat &gt; /etc/yum.repos.d/mariadb.repo &lt;&lt;EOF</span></span><br><span class="line">[<span class="type">mariadb</span>]</span><br><span class="line">name = MariaDB</span><br><span class="line">baseurl = http://yum.mariadb.org/<span class="number">10.3</span>/centos7<span class="literal">-amd64</span></span><br><span class="line">gpgkey=https://yum.mariadb.org/RPM<span class="literal">-GPG</span><span class="literal">-KEY</span><span class="literal">-MariaDB</span></span><br><span class="line">gpgcheck=<span class="number">1</span></span><br><span class="line">EOF</span><br><span class="line"></span><br><span class="line"><span class="comment">#替换为中科大源</span></span><br><span class="line">[<span class="type">root</span>@<span class="type">node1</span> ~]<span class="comment"># sed -i &#x27;s#yum\.mariadb\.org#mirrors.ustc.edu.cn/mariadb/yum#&#x27; /etc/yum.repos.d/mariadb.repo</span></span><br><span class="line">[<span class="type">root</span>@<span class="type">node1</span> ~]<span class="comment"># scp /etc/yum.repos.d/mariadb.repo node2:/etc/yum.repos.d/</span></span><br><span class="line">[<span class="type">root</span>@<span class="type">node1</span> ~]<span class="comment"># scp /etc/yum.repos.d/mariadb.repo node3:/etc/yum.repos.d/</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#安装mariadb、galera和rsync,其中galera作为依赖自动安装</span></span><br><span class="line">[<span class="type">root</span>@<span class="type">node1</span> ~]<span class="comment"># yum install -y MariaDB-server MariaDB-client</span></span><br><span class="line"></span><br><span class="line"><span class="comment">##node2、node3相同操作</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="3、-启动数据库并安全初始化（node1、node2、node3）"><a href="#3、-启动数据库并安全初始化（node1、node2、node3）" class="headerlink" title="3、 启动数据库并安全初始化（node1、node2、node3）"></a>3、 启动数据库并安全初始化（node1、node2、node3）</h4><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">[root@node1 ~]# systemctl enable mariadb &amp;&amp; systemctl start mariadb</span><br><span class="line">[root@node1 ~]# mysql_secure_installation</span><br><span class="line">回车-y-000000-000000-y-n-y-y</span><br><span class="line"></span><br><span class="line">[root@node2 ~]# systemctl enable mariadb &amp;&amp; systemctl start mariadb</span><br><span class="line">[root@node2 ~]# mysql_secure_installation</span><br><span class="line">回车-y-000000-000000-y-n-y-y</span><br><span class="line"></span><br><span class="line">[root@node3 ~]# systemctl enable mariadb &amp;&amp; systemctl start mariadb</span><br><span class="line">[root@node3 ~]# mysql_secure_installation</span><br><span class="line">回车-y-000000-000000-y-n-y-y</span><br></pre></td></tr></table></figure>
+
+<h4 id="4、-修改数据库配置文件（node1、node2、node3）"><a href="#4、-修改数据库配置文件（node1、node2、node3）" class="headerlink" title="4、 修改数据库配置文件（node1、node2、node3）"></a>4、 修改数据库配置文件（node1、node2、node3）</h4><blockquote>
+<p>参考文档</p>
+<p>1、wsrep配置选项</p>
+<p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/zhongguiyao/p/14146416.html">https://www.cnblogs.com/zhongguiyao/p/14146416.html</a></p>
+</blockquote>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">mv /etc/my.cnf.d/server.cnf /media/    #移动配置文件</span><br><span class="line">vi /etc/my.cnf.d/server.cnf</span><br><span class="line">[galera]</span><br><span class="line">wsrep_on=ON    #启用复制</span><br><span class="line">wsrep_provider=/usr/lib64/galera/libgalera_smm.so    #wsrep库的位置</span><br><span class="line">wsrep_cluster_address=&quot;gcomm://192.168.200.11,192.168.200.12,192.168.200.13&quot;    #启动时要连接的群集节点的地址</span><br><span class="line">wsrep_node_name= node1	#节点名，其他节点改为node2、node3</span><br><span class="line">wsrep_node_address=192.168.200.11	#节点IP，node2、node3改为自己IP</span><br><span class="line">binlog_format=row</span><br><span class="line">default_storage_engine=InnoDB</span><br><span class="line">innodb_autoinc_lock_mode=2</span><br><span class="line">wsrep_slave_threads=1</span><br><span class="line">innodb_flush_log_at_trx_commit=0</span><br><span class="line">innodb_buffer_pool_size=120M</span><br><span class="line">wsrep_sst_method=rsync</span><br><span class="line">wsrep_causal_reads=ON</span><br><span class="line"></span><br><span class="line"># Allow server to accept connections on all interfaces.</span><br><span class="line">#</span><br><span class="line">bind-address=192.168.200.11	#改IP，控制远程访问的</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h4 id="5、都登陆数据库并授权访问（node1、node2、node3）"><a href="#5、都登陆数据库并授权访问（node1、node2、node3）" class="headerlink" title="5、都登陆数据库并授权访问（node1、node2、node3）"></a>5、都登陆数据库并授权访问（node1、node2、node3）</h4><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">[root@node1 ~]# mysql -uroot -p000000</span><br><span class="line">MariaDB [(none)]&gt; grant all privileges on *.* to root@&#x27;%&#x27; identified by &#x27;000000&#x27;;</span><br><span class="line">MariaDB [(none)]&gt;exit</span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash">node2、node3操作同上</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="6、-将-3-个节点的数据库服务关闭"><a href="#6、-将-3-个节点的数据库服务关闭" class="headerlink" title="6、 将 3 个节点的数据库服务关闭"></a>6、 将 3 个节点的数据库服务关闭</h4><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">[root@node1 ~]# systemctl stop mariadb</span><br><span class="line">[root@node2 ~]# systemctl stop mariadb</span><br><span class="line">[root@node3 ~]# systemctl stop mariadb</span><br></pre></td></tr></table></figure>
+
+<h4 id="7、node1-节点启动MariaDB-Galera-Cluster-服务"><a href="#7、node1-节点启动MariaDB-Galera-Cluster-服务" class="headerlink" title="7、node1 节点启动MariaDB Galera Cluster 服务"></a>7、node1 节点启动MariaDB Galera Cluster 服务</h4><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@node1 ~]# galera_new_cluster</span><br></pre></td></tr></table></figure>
+
+<h4 id="8、node2-和-node3-节点启动数据库服务"><a href="#8、node2-和-node3-节点启动数据库服务" class="headerlink" title="8、node2 和 node3 节点启动数据库服务"></a>8、node2 和 node3 节点启动数据库服务</h4><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@node2 ~]# systemctl start mariadb[root@node3 ~]# systemctl start mariadb</span><br></pre></td></tr></table></figure>
+
+<h4 id="9、node1-节点，使用命令查看端口"><a href="#9、node1-节点，使用命令查看端口" class="headerlink" title="9、node1 节点，使用命令查看端口"></a>9、node1 节点，使用命令查看端口</h4><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"><span class="comment">#若看到 3306 和 4567 端口，则 MariaDB Galera Cluster集群配置成功[root@node1 ~]# ss -tnl[root@node1 ~]# netstat -ntpl    #需要yum install -y net-tools  //和ss -tnl一样</span></span> </span><br></pre></td></tr></table></figure>
+
+<h4 id="10、node1-节点，登录数据库，查看-Galera-插件"><a href="#10、node1-节点，登录数据库，查看-Galera-插件" class="headerlink" title="10、node1 节点，登录数据库，查看 Galera 插件"></a>10、node1 节点，登录数据库，查看 Galera 插件</h4><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"><span class="comment">#登录数据库[root@node1 ~]# mysql -uroot -p000000</span></span></span><br></pre></td></tr></table></figure>
+
+<p>①查看状态，为“ON”</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">MariaDB [(none)]&gt; show status like &quot;wsrep_ready&quot;;+---------------+-------+| Variable_name | Value |+---------------+-------+| wsrep_ready   | ON    |+---------------+-------+1 row in set (0.001 sec)##或者执行[root@node1 ~]# mysql -uroot -p000000 -e &quot;SHOW STATUS LIKE &#x27;wsrep_ready&#x27;&quot;</span><br></pre></td></tr></table></figure>
+
+<p>②查看集群成员数量（加入集群节点数）</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">MariaDB [(none)]&gt; show status like &quot;wsrep_cluster_size&quot;;+--------------------+-------+| Variable_name      | Value |+--------------------+-------+| wsrep_cluster_size | 3     |+--------------------+-------+1 row in set (0.001 sec)##或者执行[root@node1 ~]# mysql -uroot -p000000 -e &quot;SHOW STATUS LIKE &#x27;wsrep_cluster_size&#x27;&quot;</span><br></pre></td></tr></table></figure>
+
+<p>③查看Galera集群状态</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">MariaDB [(none)]&gt; show status like &quot;wsrep%&quot;;+-------------------------------+-------------------------------------------------------------+| Variable_name                 | Value                                                       |+-------------------------------+-------------------------------------------------------------+| wsrep_applier_thread_count    | 1                                                           || wsrep_apply_oooe              | 0.000000                                                    || wsrep_apply_oool              | 0.000000                                                    || wsrep_apply_window            | 0.000000                                                    || wsrep_causal_reads            | 1                                                           || wsrep_cert_deps_distance      | 0.000000                                                    || wsrep_cert_index_size         | 0                                                           || wsrep_cert_interval           | 0.000000                                                    || wsrep_cluster_conf_id         | 3                                                           || wsrep_cluster_size            | 3                                                           || wsrep_cluster_state_uuid      | f6fff20a-ebbb-11eb-afce-47e2dba0b6f7                        || wsrep_cluster_status          | Primary                                                     || wsrep_cluster_weight          | 3                                                           || wsrep_commit_oooe             | 0.000000                                                    || wsrep_commit_oool             | 0.000000                                                    || wsrep_commit_window           | 0.000000                                                    || wsrep_connected               | ON                                                          || wsrep_desync_count            | 0                                                           || wsrep_evs_delayed             |                                                             || wsrep_evs_evict_list          |                                                             || wsrep_evs_repl_latency        | 0/0/0/0/0                                                   || wsrep_evs_state               | OPERATIONAL                                                 || wsrep_flow_control_paused     | 0.000000                                                    || wsrep_flow_control_paused_ns  | 0                                                           || wsrep_flow_control_recv       | 0                                                           || wsrep_flow_control_sent       | 0                                                           || wsrep_gcomm_uuid              | f6ff67c4-ebbb-11eb-b48a-5b965989457c                        || wsrep_incoming_addresses      | 192.168.200.12:3306,192.168.200.13:3306,192.168.200.11:3306 || wsrep_last_committed          | 0                                                           || wsrep_local_bf_aborts         | 0                                                           || wsrep_local_cached_downto     | 18446744073709551615                                        || wsrep_local_cert_failures     | 0                                                           || wsrep_local_commits           | 0                                                           || wsrep_local_index             | 2                                                           || wsrep_local_recv_queue        | 0                                                           || wsrep_local_recv_queue_avg    | 0.142857                                                    || wsrep_local_recv_queue_max    | 2                                                           || wsrep_local_recv_queue_min    | 0                                                           || wsrep_local_replays           | 0                                                           || wsrep_local_send_queue        | 0                                                           || wsrep_local_send_queue_avg    | 0.000000                                                    || wsrep_local_send_queue_max    | 1                                                           || wsrep_local_send_queue_min    | 0                                                           || wsrep_local_state             | 4                                                           || wsrep_local_state_comment     | Synced                                                      || wsrep_local_state_uuid        | f6fff20a-ebbb-11eb-afce-47e2dba0b6f7                        || wsrep_open_connections        | 0                                                           || wsrep_open_transactions       | 0                                                           || wsrep_protocol_version        | 9                                                           || wsrep_provider_name           | Galera                                                      || wsrep_provider_vendor         | Codership Oy &lt;info@codership.com&gt;                           || wsrep_provider_version        | 25.3.28(r3875)                                              || wsrep_ready                   | ON                                                          || wsrep_received                | 7                                                           || wsrep_received_bytes          | 692                                                         || wsrep_repl_data_bytes         | 0                                                           || wsrep_repl_keys               | 0                                                           || wsrep_repl_keys_bytes         | 0                                                           || wsrep_repl_other_bytes        | 0                                                           || wsrep_replicated              | 0                                                           || wsrep_replicated_bytes        | 0                                                           || wsrep_rollbacker_thread_count | 1                                                           || wsrep_thread_count            | 2                                                           |+-------------------------------+-------------------------------------------------------------+63 rows in set (0.001 sec)</span><br></pre></td></tr></table></figure>
+
+<p>④看连接的主机</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">MariaDB [(none)]&gt; show status like &quot;wsrep_incoming_addresses&quot;;+--------------------------+-------------------------------------------------------------+| Variable_name            | Value                                                       |+--------------------------+-------------------------------------------------------------+| wsrep_incoming_addresses | 192.168.200.12:3306,192.168.200.13:3306,192.168.200.11:3306 |+--------------------------+-------------------------------------------------------------+1 row in set (0.001 sec)##或者执行[root@node1 ~]# mysql -uroot -p000000 -e &quot;SHOW STATUS LIKE &#x27;wsrep%&#x27;&quot;</span><br></pre></td></tr></table></figure>
+
+<h4 id="11、node1节点上创建测试数据库testnode1、验证数据库集群的同步功能"><a href="#11、node1节点上创建测试数据库testnode1、验证数据库集群的同步功能" class="headerlink" title="11、node1节点上创建测试数据库testnode1、验证数据库集群的同步功能"></a>11、node1节点上创建测试数据库testnode1、验证数据库集群的同步功能</h4><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">MariaDB [(none)]&gt; create database testnode1;Query OK, 1 row affected (0.006 sec)MariaDB [(none)]&gt; show databases;+--------------------+| Database           |+--------------------+| information_schema || mysql              || performance_schema || testnode1          |+--------------------+4 rows in set (0.000 sec)</span><br></pre></td></tr></table></figure>
+
+<p>12、node2、node3节点查看同步情况（testnode1）</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mysql -uroot -p000000show databases;或者root@node2 ~]# mysql -uroot -p000000 -e &quot;SHOW DATABASES&quot;root@node3 ~]# mysql -uroot -p000000 -e &quot;SHOW DATABASES&quot;</span><br></pre></td></tr></table></figure>
+
+<h4 id="13、node2节点创建数据库，node1、node3测试"><a href="#13、node2节点创建数据库，node1、node3测试" class="headerlink" title="13、node2节点创建数据库，node1、node3测试"></a>13、node2节点创建数据库，node1、node3测试</h4><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"><span class="comment">#node2create database testnode1;show databases;##node1、node3show databases;</span></span></span><br></pre></td></tr></table></figure>
+
+
+
+
+
+<h4 id="排错："><a href="#排错：" class="headerlink" title="排错："></a>排错：</h4><p>1、错误汇总</p>
+<p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/zhongguiyao/p/14149654.html">https://www.cnblogs.com/zhongguiyao/p/14149654.html</a></p>
+<p>2、集群无法正常启动</p>
+<p>mariadb galera cluster集群故障恢复时，经常会遇到节点无法启动的情况，启动服务时报错：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">systemctl start mariadbJob <span class="keyword">for</span> mariadb.service failed because the control process exited with error code. See <span class="string">&quot;systemctl status mariadb.service&quot;</span> and <span class="string">&quot;journalctl -xe&quot;</span> <span class="keyword">for</span> details.1.2.</span><br></pre></td></tr></table></figure>
+
+<p>如果集群中还有存活的节点，那么离线的节点只需要执行systemctl start mariadb即可重新加入集群</p>
+<p>如果所有节点均已离线，就会出现以上这种情况，此时需要人工确定启动顺序，先检查每个节点的/var/lib/mysql/grastate.dat文件，以测试环境为例，当前两节点上的mariadb服务均处于停止状态，grastate.dat的内容分别为：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># GALERA saved stateversion: 2.1uuid:    44f8dbe5-1271-11eb-8206-1e1a48859dc8seqno:   157035safe_to_bootstrap: 01.2.3.4.5.# GALERA saved stateversion: 2.1uuid:    44f8dbe5-1271-11eb-8206-1e1a48859dc8seqno:   157036safe_to_bootstrap: 11.2.3.4.5.</span></span><br></pre></td></tr></table></figure>
+
+<p>可以看到两者有相同的uuid，但seqno和safe_to_bootstrap不同。集群中seqno最大的节点是优先启动节点，一般它的safe_to_bootstrap=1。此时以galera_new_cluster方式启动优先节点，然后再以systemctl start mariadb方式启动其它节点，集群就顺利恢复了。</p>
+
+      
+    </div>
+    <div class="article-footer">
+      <blockquote class="mt-2x">
+  <ul class="post-copyright list-unstyled">
+    
+    <li class="post-copyright-link hidden-xs">
+      <strong>本文链接：</strong>
+      <a href="http://example.com/2022/01/20/mariadb-galera-cluster/" title="mariadb-galera-cluster" target="_blank" rel="external">http://example.com/2022/01/20/mariadb-galera-cluster/</a>
+    </li>
+    
+    <li class="post-copyright-license">
+      <strong>版权声明： </strong> 本博客所有文章除特别声明外，均采用 <a href="http://creativecommons.org/licenses/by/4.0/deed.zh" target="_blank" rel="external">CC BY 4.0 CN协议</a> 许可协议。转载请注明出处！
+    </li>
+  </ul>
+</blockquote>
+
+
+<div class="panel panel-default panel-badger">
+  <div class="panel-body">
+    <figure class="media">
+      <div class="media-left">
+        <a href="https://github.com/cofess" target="_blank" class="img-burn thumb-sm visible-lg">
+          <img src="/images/avatar.jpg" class="img-rounded w-full" alt="">
+        </a>
+      </div>
+      <div class="media-body">
+        <h3 class="media-heading"><a href="https://github.com/cofess" target="_blank"><span class="text-dark">云先森</span><small class="ml-1x">一个酷酷的学生</small></a></h3>
+        <div>学不死往死学。</div>
+      </div>
+    </figure>
+  </div>
+</div>
+
+
+    </div>
+  </article>
+  
+    
+  <section id="comments">
+  	
+      <div id="vcomments"></div>
+    
+  </section>
+
+
+  
+</div>
+
+  <nav class="bar bar-footer clearfix" data-stick-bottom>
+  <div class="bar-inner">
+  
+  <ul class="pager pull-left">
+    
+    <li class="prev">
+      <a href="/2022/01/21/Keepalived-%E5%8F%8C%E6%9C%BA%E8%A2%AB%E7%83%AD/" title="Keepalived-双机被热"><i class="icon icon-angle-left" aria-hidden="true"></i><span>&nbsp;&nbsp;上一篇</span></a>
+    </li>
+    
+    
+    <li class="next">
+      <a href="/2022/01/19/YAML%E8%AF%AD%E6%B3%95%E5%AD%A6%E4%B9%A0/" title="YAML语法学习"><span>下一篇&nbsp;&nbsp;</span><i class="icon icon-angle-right" aria-hidden="true"></i></a>
+    </li>
+    
+    
+  </ul>
+  
+  
+  <!-- Button trigger modal -->
+  <button type="button" class="btn btn-fancy btn-donate pop-onhover bg-gradient-warning" data-toggle="modal" data-target="#donateModal"><span>赏</span></button>
+  <!-- <div class="wave-icon wave-icon-danger btn-donate" data-toggle="modal" data-target="#donateModal">
+    <div class="wave-circle"><span class="icon"><i class="icon icon-bill"></i></span></div>
+  </div> -->
+  
+  
+  <div class="bar-right">
+    
+    <div class="share-component" data-sites="weibo,qq,wechat,facebook,twitter" data-mobile-sites="weibo,qq,qzone"></div>
+    
+  </div>
+  </div>
+</nav>
+  
+<!-- Modal -->
+<div class="modal modal-center modal-small modal-xs-full fade" id="donateModal" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content donate">
+      <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+      <div class="modal-body">
+        <div class="donate-box">
+          <div class="donate-head">
+            <p>感谢您的支持，我会继续努力的!</p>
+          </div>
+          <div class="tab-content">
+            <div role="tabpanel" class="tab-pane fade active in" id="alipay">
+              <div class="donate-payimg">
+                <img src="/images/donate/alipayimg.png" alt="扫码支持" title="扫一扫" />
+              </div>
+              <p class="text-muted mv">扫码打赏，你说多少就多少</p>
+              <p class="text-grey">打开支付宝扫一扫，即可进行扫码打赏哦</p>
+            </div>
+            <div role="tabpanel" class="tab-pane fade" id="wechatpay">
+              <div class="donate-payimg">
+                <img src="/images/donate/wechatpayimg.png" alt="扫码支持" title="扫一扫" />
+              </div>
+              <p class="text-muted mv">扫码打赏，你说多少就多少</p>
+              <p class="text-grey">打开微信扫一扫，即可进行扫码打赏哦</p>
+            </div>
+          </div>
+          <div class="donate-footer">
+            <ul class="nav nav-tabs nav-justified" role="tablist">
+              <li role="presentation" class="active">
+                <a href="#alipay" id="alipay-tab" role="tab" data-toggle="tab" aria-controls="alipay" aria-expanded="true"><i class="icon icon-alipay"></i> 支付宝</a>
+              </li>
+              <li role="presentation" class="">
+                <a href="#wechatpay" role="tab" id="wechatpay-tab" data-toggle="tab" aria-controls="wechatpay" aria-expanded="false"><i class="icon icon-wepay"></i> 微信支付</a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+</main>
+
+  <footer class="footer" itemscope itemtype="http://schema.org/WPFooter">
+	
+	
+    <ul class="social-links">
+    	
+        <li><a href="https://github.com/cofess" target="_blank" title="Github" data-toggle=tooltip data-placement=top><i class="icon icon-github"></i></a></li>
+        
+        <li><a href="http://weibo.com/cofess" target="_blank" title="Weibo" data-toggle=tooltip data-placement=top><i class="icon icon-weibo"></i></a></li>
+        
+        <li><a href="https://twitter.com/iwebued" target="_blank" title="Twitter" data-toggle=tooltip data-placement=top><i class="icon icon-twitter"></i></a></li>
+        
+        <li><a href="https://www.behance.net/cofess" target="_blank" title="Behance" data-toggle=tooltip data-placement=top><i class="icon icon-behance"></i></a></li>
+        
+        <li><a href="/atom.xml" target="_blank" title="Rss" data-toggle=tooltip data-placement=top><i class="icon icon-rss"></i></a></li>
+        
+    </ul>
+
+    <div class="copyright">
+    	
+        <div class="publishby">
+        	Theme by <a href="https://github.com/cofess" target="_blank"> cofess </a>base on <a href="https://github.com/cofess/hexo-theme-pure" target="_blank">pure</a>.
+        </div>
+    </div>
+</footer>
+  <script src="//cdn.jsdelivr.net/npm/jquery@1.12.4/dist/jquery.min.js"></script>
+<script>
+window.jQuery || document.write('<script src="js/jquery.min.js"><\/script>')
+</script>
+
+<script src="/js/plugin.min.js"></script>
+
+
+<script src="/js/application.js"></script>
+
+
+    <script>
+(function (window) {
+    var INSIGHT_CONFIG = {
+        TRANSLATION: {
+            POSTS: '文章',
+            PAGES: '页面',
+            CATEGORIES: '分类',
+            TAGS: '标签',
+            UNTITLED: '(未命名)',
+        },
+        ROOT_URL: '/',
+        CONTENT_URL: '/content.json',
+    };
+    window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+})(window);
+</script>
+
+<script src="/js/insight.js"></script>
+
+
+
+
+
+
+   
+
+
+
+
+   
+    
+  <script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/valine"></script>
+  <script type="text/javascript">
+  var GUEST = ['nick', 'mail', 'link'];
+  var meta = 'nick,mail,link';
+  meta = meta.split(',').filter(function(item) {
+    return GUEST.indexOf(item) > -1;
+  });
+  new Valine({
+    el: '#vcomments',
+    verify: false,
+    notify: false,
+    appId: '',
+    appKey: '',
+    placeholder: 'Just go go',
+    avatar: 'mm',
+    meta: meta,
+    pageSize: '10' || 10,
+    visitor: false
+  });
+  </script>
+
+     
+
+
+
+
+
+
+
+</body>
+</html>
